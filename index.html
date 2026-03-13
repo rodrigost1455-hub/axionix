@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axionix — Eleva el Flujo de Trabajo de tu Empresa</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter — the SaaS standard (all weights) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            navy: '#0A0F1E',
+            'blue-brand': '#2563EB',
+            'cyan-brand': '#06B6D4',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ── Reset & Base ───────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      margin: 0;
+      background-color: #0A0F1E;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Subtle noise grain ─────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.4;
+    }
+
+    /* ── Container utility ──────────────────────── */
+    .section-wrap { max-width: 80rem; margin: 0 auto; padding: 0 1.5rem; }
+    @media (min-width: 1024px) { .section-wrap { padding: 0 2rem; } }
+
+    /* ── Label pill ─────────────────────────────── */
+    .label-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(6,182,212,0.08);
+      border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 999px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #06B6D4; margin-bottom: 1.25rem;
+    }
+    .label-pill .dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #06B6D4;
+      animation: blink 2s ease infinite;
+    }
+
+    /* ── Shared heading + body ─────────────────── */
+    .section-heading {
+      font-size: clamp(1.9rem, 3.5vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #F8FAFC;
+      text-wrap: balance;
+      margin: 0 0 1rem;
+    }
+    .section-heading .grad {
+      background: linear-gradient(135deg, #60A5FA 0%, #06B6D4 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .section-body-text {
+      font-size: 1rem; font-weight: 400;
+      color: #94A3B8; line-height: 1.8;
+    }
+
+    /* ── Divider ────────────────────────────────── */
+    .divider {
+      height: 1px; border: none;
+      background: linear-gradient(to right, transparent, rgba(37,99,235,0.22), transparent);
+    }
+
+    /* ═══════ NAV ═══════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+      background: rgba(10,15,30,0.8);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(10,15,30,0.96);
+      border-bottom-color: rgba(37,99,235,0.18);
+    }
+    .nav-logo {
+      font-size: 1.2rem; font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #3B82F6, #06B6D4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; }
+    .nav-links a {
+      color: #94A3B8; text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      padding: 0.4rem 0.9rem; border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { color: #E2E8F0; background: rgba(255,255,255,0.06); }
+    @media (max-width: 640px) { .nav-text-link { display: none; } }
+
+    /* ═══════ BUTTONS ═══════════════════════════ */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.62rem 1.35rem;
+      background: #2563EB; color: #fff;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.875rem;
+      border-radius: 9px; border: none; cursor: pointer; text-decoration: none;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.5), 0 4px 24px rgba(37,99,235,0.3);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover {
+      background: #3B82F6;
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.6), 0 6px 32px rgba(37,99,235,0.45);
+      transform: translateY(-1px);
+    }
+    .btn-primary.lg { padding: 0.85rem 1.75rem; font-size: 0.95rem; border-radius: 10px; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 1.75rem;
+      background: rgba(255,255,255,0.04); color: #CBD5E1;
+      font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.95rem;
+      border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer; text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(6,182,212,0.4);
+      color: #E2E8F0; background: rgba(6,182,212,0.06);
+    }
+
+    /* ═══════ HERO ══════════════════════════════ */
+    .hero {
+      position: relative; min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .hero video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; z-index: 0;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: rgba(10,15,30,0.76);
+    }
+    .hero-overlay::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0; height: 220px;
+      background: linear-gradient(to bottom, transparent, #0A0F1E);
+    }
+    .hero-glow {
+      position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse 65% 55% at 50% 44%, rgba(37,99,235,0.14) 0%, transparent 68%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center; max-width: 900px; padding: 0 1.5rem;
+    }
+    .hero-badge {
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.2s;
+      margin-bottom: 2rem;
+    }
+    .hero-h1 {
+      font-size: clamp(2.8rem, 7.5vw, 5.5rem);
+      font-weight: 800; letter-spacing: -0.04em;
+      line-height: 1.07; color: #F8FAFC;
+      text-wrap: balance; margin: 0 0 1.5rem;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+    .hero-h1 .grad {
+      background: linear-gradient(135deg, #60A5FA 10%, #06B6D4 90%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.175rem);
+      font-weight: 400; color: #94A3B8;
+      max-width: 560px; margin: 0 auto 2.75rem; line-height: 1.75;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.58s;
+    }
+    .hero-ctas {
+      display: flex; gap: 0.875rem;
+      justify-content: center; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.76s;
+    }
+
+    /* ═══════ CONTACT SECTION ══════════════════ */
+    #contacto { padding: 7rem 0; }
+
+    .section-header-center {
+      text-align: center; max-width: 42rem;
+      margin: 0 auto 4rem;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-width: 56rem; margin: 0 auto;
+    }
+    .contact-card {
+      background: rgba(255,255,255,0.032);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 2rem;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+    .contact-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(37,99,235,0.5), transparent);
+    }
+    .contact-card:hover {
+      border-color: rgba(37,99,235,0.28);
+      box-shadow: 0 0 48px rgba(37,99,235,0.1), 0 20px 40px rgba(0,0,0,0.25);
+      transform: translateY(-4px);
+    }
+
+    /* Card internal layout */
+    .card-top {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.75rem; padding-bottom: 1.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .card-avatar {
+      width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+      background: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 700; color: #fff;
+    }
+    .card-name {
+      font-size: 1.1rem; font-weight: 700;
+      letter-spacing: -0.02em; color: #F8FAFC; margin: 0 0 0.25rem;
+    }
+    .card-role {
+      font-size: 0.78rem; font-weight: 500;
+      color: #06B6D4; margin: 0; line-height: 1.4;
+    }
+    .card-contacts { display: flex; flex-direction: column; gap: 0.875rem; }
+    .card-contact-row { display: flex; align-items: center; gap: 0.875rem; }
+    .contact-icon {
+      width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+      background: rgba(37,99,235,0.1);
+      border: 1px solid rgba(37,99,235,0.18);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .contact-icon svg { width: 15px; height: 15px; stroke: #60A5FA; fill: none; }
+    .contact-row-text { display: flex; flex-direction: column; }
+    .contact-row-label {
+      font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #475569; margin-bottom: 0.1rem;
+    }
+    .contact-row-text a {
+      font-size: 0.875rem; font-weight: 500;
+      color: #CBD5E1; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .contact-row-text a:hover { color: #F1F5F9; }
+
+    /* ═══════ ABOUT + FEATURES ══════════════════ */
+    #acerca { padding: 7rem 0; }
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: start;
+    }
+    @media (max-width: 900px) {
+      .about-layout { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    .about-left { max-width: 30rem; }
+
+    /* Stats */
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin-top: 2.5rem;
+    }
+    .stat-item {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 1.25rem 1.5rem;
+    }
+    .stat-num {
+      font-size: 2rem; font-weight: 800; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #60A5FA, #06B6D4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; margin-bottom: 0.3rem;
+    }
+    .stat-desc { font-size: 0.78rem; font-weight: 500; color: #475569; }
+
+    /* 2×2 Feature cards */
+    .features-2x2 {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    @media (max-width: 480px) { .features-2x2 { grid-template-columns: 1fr; } }
+    .feature-card {
+      background: rgba(255,255,255,0.032);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px; padding: 1.5rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card:hover {
+      border-color: rgba(6,182,212,0.25); transform: translateY(-3px);
+    }
+    .feature-icon-wrap {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: rgba(37,99,235,0.1);
+      border: 1px solid rgba(37,99,235,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .feature-icon-wrap svg { width: 20px; height: 20px; stroke: #60A5FA; fill: none; }
+    .feature-title {
+      font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em;
+      color: #F1F5F9; margin: 0 0 0.4rem;
+    }
+    .feature-desc {
+      font-size: 0.8rem; font-weight: 400;
+      color: #64748B; line-height: 1.65; margin: 0;
+    }
+
+    /* ═══════ FOOTER ════════════════════════════ */
+    footer {
+      background: #060B18;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 3.5rem 1.5rem; text-align: center;
+    }
+    .footer-logo {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #3B82F6, #06B6D4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.75rem;
+    }
+    .footer-tagline { font-size: 0.875rem; color: #334155; margin: 0 0 2rem; }
+    .footer-copy { font-size: 0.75rem; color: #1E293B; margin-top: 2.5rem; }
+
+    /* ═══════ ANIMATIONS ════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════ NAV ══════════════════════════ -->
+  <nav id="main-nav">
+    <div class="nav-logo">Axionix</div>
+    <div class="nav-links">
+      <a href="#contacto" class="nav-text-link">Contacto</a>
+      <a href="#acerca" class="nav-text-link">Plataforma</a>
+      <a href="#contacto" class="btn-primary">Comienza Ahora</a>
+    </div>
+  </nav>
+
+
+  <!-- ══════════════ HERO ═════════════════════════ -->
+  <section class="hero" aria-label="Hero Axionix">
+    <video autoplay muted loop playsinline preload="auto">
+      <source src="axionix-logo.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="label-pill">
+          <span class="dot"></span>
+          Plataforma Empresarial de Nueva Generación
+        </span>
+      </div>
+
+      <h1 class="hero-h1">
+        Eleva el Flujo de Trabajo<br />
+        <span class="grad">de tu Empresa.</span>
+      </h1>
+
+      <p class="hero-sub">
+        Transforma, conecta y automatiza los procesos de tu negocio
+        con la plataforma de Axionix.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#contacto" class="btn-primary lg">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          Comienza tu Prueba Gratis
+        </a>
+        <a href="#contacto" class="btn-ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Agendar Demostración
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+
+  <!-- ══════════════ CONTACT ══════════════════════ -->
+  <section id="contacto">
+    <div class="section-wrap">
+
+      <!-- Centered section header -->
+      <div class="section-header-center reveal">
+        <span class="label-pill"><span class="dot"></span>Equipo de Expertos</span>
+        <h2 class="section-heading">
+          Contacta a Nuestros <span class="grad">Expertos</span>
+        </h2>
+        <p class="section-body-text">
+          Nuestro equipo está listo para diseñar la solución perfecta para tu empresa.
+          Comunícate directamente con nuestros especialistas.
+        </p>
+      </div>
+
+      <!-- Contact cards -->
+      <div class="contact-grid reveal" style="transition-delay:0.13s;">
+
+        <!-- Rodrigo -->
+        <div class="contact-card">
+          <div class="card-top">
+            <div class="card-avatar">R</div>
+            <div>
+              <p class="card-name">Rodrigo</p>
+              <p class="card-role">Líder de Soluciones de Flujo de Trabajo</p>
+            </div>
+          </div>
+          <div class="card-contacts">
+            <div class="card-contact-row">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012.05 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z"/></svg>
+              </div>
+              <div class="contact-row-text">
+                <span class="contact-row-label">Teléfono</span>
+                <a href="tel:+526182225975">+52 618 222 5975</a>
+              </div>
+            </div>
+            <div class="card-contact-row">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="contact-row-text">
+                <span class="contact-row-label">Correo</span>
+                <a href="mailto:rodrigost1455@gmail.com">rodrigost1455@gmail.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diego -->
+        <div class="contact-card">
+          <div class="card-top">
+            <div class="card-avatar" style="background:linear-gradient(135deg,#0891B2,#0284C7);">D</div>
+            <div>
+              <p class="card-name">Diego</p>
+              <p class="card-role">Director de Integración</p>
+            </div>
+          </div>
+          <div class="card-contacts">
+            <div class="card-contact-row">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.07 2.18 2 2 0 012.05 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92v2z"/></svg>
+              </div>
+              <div class="contact-row-text">
+                <span class="contact-row-label">Teléfono</span>
+                <a href="tel:+526182562935">+52 618 256 2935</a>
+              </div>
+            </div>
+            <div class="card-contact-row">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="contact-row-text">
+                <span class="contact-row-label">Correo</span>
+                <a href="mailto:diegocovars960@gmail.com">diegocovars960@gmail.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+
+  <!-- ══════════════ ABOUT + FEATURES ════════════ -->
+  <section id="acerca">
+    <div class="section-wrap">
+      <div class="about-layout reveal">
+
+        <!-- Left: text + stats -->
+        <div class="about-left">
+          <span class="label-pill"><span class="dot"></span>¿Qué es Axionix?</span>
+          <h2 class="section-heading">
+            Tecnología que<br /><span class="grad">impulsa resultados</span>
+          </h2>
+          <p class="section-body-text">
+            Axionix es una plataforma empresarial avanzada diseñada para optimizar operaciones,
+            eliminar cuellos de botella y lograr una eficiencia sin precedentes a través de
+            la integración de sistemas de última generación.
+          </p>
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-num">3×</div>
+              <div class="stat-desc">Más velocidad en procesos</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">99%</div>
+              <div class="stat-desc">Uptime garantizado</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">−60%</div>
+              <div class="stat-desc">Reducción de costos</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-num">24/7</div>
+              <div class="stat-desc">Soporte dedicado</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 2×2 feature grid -->
+        <div class="features-2x2">
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <p class="feature-title">Automatización Inteligente</p>
+            <p class="feature-desc">Flujos de trabajo impulsados por IA que eliminan tareas repetitivas al instante.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <p class="feature-title">Integración Total</p>
+            <p class="feature-desc">Conecta todos tus sistemas con una API unificada y completamente flexible.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <p class="feature-title">Seguridad Empresarial</p>
+            <p class="feature-desc">Cifrado de extremo a extremo y cumplimiento normativo garantizado.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <p class="feature-title">Analítica en Tiempo Real</p>
+            <p class="feature-desc">Dashboards que traducen datos en decisiones estratégicas claras.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+
+  <!-- ══════════════ FOOTER ═══════════════════════ -->
+  <footer>
+    <div class="footer-logo">Axionix</div>
+    <p class="footer-tagline">La plataforma que tu empresa necesita para crecer sin límites.</p>
+    <a href="#contacto" class="btn-primary" style="margin: 0 auto;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+      Contáctanos
+    </a>
+    <p class="footer-copy">© 2025 Axionix. Todos los derechos reservados.</p>
+  </footer>
+
+
+  <!-- ══════════════ JS ════════════════════════════ -->
+  <script>
+    /* Scroll-reveal */
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      }),
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* Nav scroll state */
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+  </script>
+</body>
+</html>
