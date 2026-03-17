@@ -1,422 +1,982 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Axionix — Plataforma Empresarial de Automatización</title>
+  <title>Axionix — Plataforma Empresarial</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: {
-            navy:     { DEFAULT: '#0F172A', 900: '#070E1A', 800: '#0F172A', 700: '#1E293B' },
-            electric: { DEFAULT: '#2563EB', light: '#3B82F6', dark: '#1D4ED8' },
-            cyanx:    { DEFAULT: '#06B6D4', light: '#22D3EE', dark: '#0891B2' },
-          },
-          animation: {
-            'fade-up':    'fadeUp 0.7s ease forwards',
-            'fade-in':    'fadeIn 1s ease forwards',
-            'pulse-slow': 'pulse 4s cubic-bezier(0.4,0,0.6,1) infinite',
-          },
-          keyframes: {
-            fadeUp: { from: { opacity:'0', transform:'translateY(28px)' }, to: { opacity:'1', transform:'translateY(0)' } },
-            fadeIn: { from: { opacity:'0' }, to: { opacity:'1' } },
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    html { font-family: 'Inter', sans-serif; }
-    body { background: #0F172A; color: #e2e8f0; overflow-x: hidden; }
-
-    /* Orbs */
-    .orb { position:absolute; border-radius:50%; filter:blur(80px); animation:float 8s ease-in-out infinite alternate; pointer-events:none; }
-    .orb-1 { width:520px; height:520px; background:radial-gradient(circle,rgba(37,99,235,.35) 0%,transparent 70%); top:-100px; left:-120px; animation-delay:0s; }
-    .orb-2 { width:420px; height:420px; background:radial-gradient(circle,rgba(6,182,212,.28) 0%,transparent 70%); top:40%; right:-80px; animation-delay:-3s; }
-    .orb-3 { width:340px; height:340px; background:radial-gradient(circle,rgba(37,99,235,.22) 0%,transparent 70%); bottom:10%; left:30%; animation-delay:-5s; }
-    @keyframes float { from{transform:translateY(0) scale(1);} to{transform:translateY(-40px) scale(1.05);} }
-
-    /* Glass */
-    .glass { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
-    .glass-hover { transition:background .3s,border-color .3s,box-shadow .3s,transform .3s; }
-    .glass-hover:hover { background:rgba(255,255,255,.075); border-color:rgba(37,99,235,.4); box-shadow:0 0 40px rgba(37,99,235,.18),0 8px 32px rgba(0,0,0,.4); transform:translateY(-4px); }
-    .contact-card { transition:background .3s,border-color .3s,box-shadow .3s,transform .3s; }
-    .contact-card:hover { background:rgba(255,255,255,.075); border-color:rgba(37,99,235,.5); box-shadow:0 0 60px rgba(37,99,235,.22),0 16px 48px rgba(0,0,0,.5); transform:translateY(-4px); }
-
-    /* Buttons */
-    .btn-primary { background:linear-gradient(135deg,#2563EB 0%,#1d4ed8 100%); box-shadow:0 4px 24px rgba(37,99,235,.45); transition:box-shadow .3s,transform .2s,background .3s; }
-    .btn-primary:hover { box-shadow:0 6px 36px rgba(37,99,235,.65); background:linear-gradient(135deg,#3b82f6 0%,#2563EB 100%); transform:translateY(-2px); }
-    .btn-ghost { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); backdrop-filter:blur(10px); transition:background .3s,border-color .3s,transform .2s,box-shadow .3s; }
-    .btn-ghost:hover { background:rgba(255,255,255,.12); border-color:rgba(6,182,212,.5); box-shadow:0 0 20px rgba(6,182,212,.2); transform:translateY(-2px); }
-
-    /* Icon wrap */
-    .icon-wrap { background:linear-gradient(135deg,rgba(37,99,235,.25) 0%,rgba(6,182,212,.15) 100%); border:1px solid rgba(37,99,235,.3); border-radius:14px; padding:12px; width:52px; height:52px; display:flex; align-items:center; justify-content:center; transition:box-shadow .3s; }
-    .glass-hover:hover .icon-wrap { box-shadow:0 0 20px rgba(37,99,235,.4); }
-
-    /* Gradient text */
-    .grad-text { background:linear-gradient(135deg,#ffffff 20%,#93c5fd 60%,#06B6D4 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-
-    /* Divider */
-    .divider { height:1px; background:linear-gradient(90deg,transparent,rgba(37,99,235,.4),rgba(6,182,212,.4),transparent); }
-
-    /* Navbar */
-    #navbar { transition:background .4s,box-shadow .4s; }
-    #navbar.scrolled { background:rgba(7,14,26,.85); backdrop-filter:blur(20px); box-shadow:0 1px 0 rgba(255,255,255,.06); }
-
-    /* Scroll reveal */
-    .reveal { opacity:0; transform:translateY(30px); transition:opacity .7s ease,transform .7s ease; }
-    .reveal.visible { opacity:1; transform:translateY(0); }
-
-    /* Action links */
-    .action-link { display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:10px; font-size:.875rem; font-weight:500; transition:background .25s,transform .2s,box-shadow .25s; text-decoration:none; }
-    .action-wa    { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.25); color:#86efac; }
-    .action-wa:hover { background:rgba(34,197,94,.22); box-shadow:0 0 18px rgba(34,197,94,.25); transform:translateY(-1px); }
-    .action-email { background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.3); color:#93c5fd; }
-    .action-email:hover { background:rgba(37,99,235,.22); box-shadow:0 0 18px rgba(37,99,235,.25); transform:translateY(-1px); }
-
-    /* Hero video */
-    .hero-video   { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
-    .hero-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(7,14,26,.78) 0%,rgba(15,23,42,.65) 50%,rgba(7,14,26,.92) 100%); z-index:1; }
-
-    /* Stat gradient */
-    .stat-num { background:linear-gradient(135deg,#60a5fa,#22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-
-    /* Social icon */
-    .social-icon { transition:transform .25s,color .25s; }
-    .social-icon:hover { transform:scale(1.2) translateY(-2px); color:#06B6D4; }
-
-    /* Grid bg texture */
-    .grid-bg { background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px); background-size:64px 64px; }
+    :root {
+      --navy:      #0F172A;
+      --navy-mid:  #1E293B;
+      --navy-card: #1A2744;
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --cyan:      #06B6D4;
+      --cyan-light:#67E8F9;
+      --glass-bg:  rgba(30, 41, 59, 0.55);
+      --glass-border: rgba(99, 179, 237, 0.18);
+    }
+ 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    html { scroll-behavior: smooth; }
+ 
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
+      color: #E2E8F0;
+      overflow-x: hidden;
+    }
+ 
+    /* ─── Scrollbar ─────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--navy); }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 4px; }
+ 
+    /* ─── Noise overlay ─────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.3;
+    }
+ 
+    /* ─── Nav ────────────────────────────────────────── */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 rgba(99, 179, 237, 0.1);
+    }
+    .nav-link {
+      position: relative;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #94A3B8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 1.5px;
+      background: var(--cyan);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .nav-link:hover { color: #fff; }
+    .nav-link:hover::after { transform: scaleX(1); }
+ 
+    /* ─── Hero ───────────────────────────────────────── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    #hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(15,23,42,0.72) 0%,
+        rgba(15,23,42,0.55) 50%,
+        rgba(15,23,42,0.92) 100%
+      );
+      z-index: 1;
+    }
+    #hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 860px;
+      padding: 0 1.5rem;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cyan-light);
+      margin-bottom: 1.75rem;
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    h1.hero-title {
+      font-size: clamp(2.4rem, 6vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      color: #fff;
+      text-wrap: balance;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.9s 0.15s ease both;
+    }
+    h1.hero-title span {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: #94A3B8;
+      font-weight: 400;
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+    .hero-ctas {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 1s 0.45s ease both;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 45px rgba(59,130,246,0.55);
+    }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, border-color 0.2s;
+      backdrop-filter: blur(12px);
+    }
+    .btn-ghost:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.11);
+      border-color: rgba(99,179,237,0.4);
+    }
+ 
+    /* ─── Scroll indicator ──────────────────────────── */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      opacity: 0.5;
+      animation: fadeIn 1.5s 1s ease both;
+    }
+    .scroll-indicator span {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #94A3B8;
+    }
+    .scroll-mouse {
+      width: 22px; height: 36px;
+      border: 2px solid rgba(148,163,184,0.5);
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      padding-top: 6px;
+    }
+    .scroll-wheel {
+      width: 3px; height: 7px;
+      background: var(--cyan);
+      border-radius: 2px;
+      animation: scroll-anim 2s ease infinite;
+    }
+    @keyframes scroll-anim {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(10px); opacity: 0; }
+    }
+ 
+    /* ─── Stats bar ─────────────────────────────────── */
+    #stats {
+      background: linear-gradient(90deg, rgba(30,41,59,0.9), rgba(26,39,68,0.9));
+      border-top: 1px solid rgba(99,179,237,0.1);
+      border-bottom: 1px solid rgba(99,179,237,0.1);
+      position: relative;
+      z-index: 3;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 1.5rem 1rem;
+    }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.03em;
+    }
+    .stat-label {
+      font-size: 0.82rem;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 0.25rem;
+      letter-spacing: 0.02em;
+    }
+ 
+    /* ─── Section shared styles ────────────────────── */
+    section { position: relative; z-index: 2; }
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 1rem;
+    }
+    .section-tag::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1.5px;
+      background: var(--cyan);
+    }
+    h2.section-title {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.12;
+      color: #F1F5F9;
+      text-wrap: balance;
+    }
+    h2.section-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+ 
+    /* ─── Features ──────────────────────────────────── */
+    #features {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 70%);
+    }
+ 
+    .feature-desc {
+      color: #64748B;
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+    .feature-desc strong {
+      color: #94A3B8;
+      font-weight: 600;
+    }
+ 
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(18px);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      cursor: default;
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(6,182,212,0.12);
+      border-color: rgba(99,179,237,0.35);
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.35rem;
+    }
+    .icon-blue  { background: rgba(59,130,246,0.15);  }
+    .icon-cyan  { background: rgba(6,182,212,0.15);   }
+    .icon-violet{ background: rgba(139,92,246,0.15);  }
+    .icon-emerald{ background: rgba(16,185,129,0.15); }
+ 
+    .feature-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #E2E8F0;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .feature-card-desc {
+      font-size: 0.875rem;
+      color: #64748B;
+      line-height: 1.6;
+    }
+ 
+    /* ─── Glow line separator ──────────────────────── */
+    .glow-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.4) 30%, rgba(6,182,212,0.4) 70%, transparent 100%);
+      margin: 0;
+    }
+ 
+    /* ─── Team / Contact ────────────────────────────── */
+    #contact {
+      background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(6,182,212,0.05) 0%, transparent 70%);
+    }
+ 
+    .expert-card {
+      background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(26,39,68,0.8));
+      border: 1px solid rgba(99,179,237,0.15);
+      border-radius: 20px;
+      padding: 2rem;
+      backdrop-filter: blur(20px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .expert-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .expert-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 60px rgba(6,182,212,0.14);
+      border-color: rgba(99,179,237,0.32);
+    }
+    .expert-card:hover::before { opacity: 1; }
+ 
+    .expert-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--blue-dark), var(--cyan));
+      color: #fff;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+    .expert-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #F1F5F9;
+      letter-spacing: -0.02em;
+    }
+    .expert-role {
+      font-size: 0.82rem;
+      color: var(--cyan);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+      margin-bottom: 1.25rem;
+    }
+    .contact-links { display: flex; flex-direction: column; gap: 0.65rem; }
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: #94A3B8;
+      text-decoration: none;
+      padding: 0.6rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid rgba(99,179,237,0.1);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      font-weight: 500;
+    }
+    .contact-link:hover {
+      background: rgba(99,179,237,0.08);
+      color: #fff;
+      border-color: rgba(99,179,237,0.3);
+    }
+    .contact-link .link-icon {
+      width: 20px; height: 20px;
+      flex-shrink: 0;
+    }
+ 
+    /* ─── Footer ─────────────────────────────────────── */
+    footer {
+      background: rgba(10,16,30,0.95);
+      border-top: 1px solid rgba(99,179,237,0.08);
+      position: relative;
+      z-index: 3;
+    }
+    .footer-logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.03em;
+    }
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #94A3B8;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .social-btn:hover {
+      background: rgba(99,179,237,0.12);
+      border-color: rgba(99,179,237,0.3);
+      color: var(--cyan);
+      transform: translateY(-2px);
+    }
+ 
+    /* ─── Animations ─────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 0.5; }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+ 
+    /* ─── Mobile menu ────────────────────────────────── */
+    #mobile-menu {
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1.25rem 1.5rem 1.75rem;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(99,179,237,0.1);
+    }
+    #mobile-menu.open { display: flex; }
+    #mobile-menu a {
+      font-size: 1rem;
+      color: #94A3B8;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(99,179,237,0.07);
+      transition: color 0.2s;
+    }
+    #mobile-menu a:hover { color: #fff; }
+ 
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 640px) {
+      .hero-ctas { flex-direction: column; align-items: center; }
+      .hero-ctas a { width: 100%; max-width: 320px; justify-content: center; }
+    }
   </style>
 </head>
 <body>
-
-<!-- ═══════════════════════  NAVBAR  ═══════════════════════ -->
-<header id="navbar" class="fixed top-0 inset-x-0 z-50 py-4">
-  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
-    <a href="#" class="flex items-center gap-2.5">
-      <span class="w-8 h-8 rounded-lg btn-primary flex items-center justify-center text-white font-black text-sm">A</span>
-      <span class="text-white font-bold text-xl tracking-tight">Axionix</span>
-    </a>
-    <nav class="hidden md:flex items-center gap-8">
-      <a href="#features" class="text-slate-400 hover:text-white text-sm font-medium transition-colors">Características</a>
-      <a href="#contact"  class="text-slate-400 hover:text-white text-sm font-medium transition-colors">Contacto</a>
-    </nav>
-    <a href="#contact" class="hidden md:inline-flex btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl">Hablar con un Experto</a>
-  </div>
-</header>
-
-
-<!-- ═══════════════════════  HERO  ════════════════════════ -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-
-  <video class="hero-video" autoplay muted loop playsinline preload="auto">
-    <source src="SaaS_Logo_Animation_Request_Fulfilled.mp4" type="video/mp4" />
-  </video>
-  <div class="hero-overlay"></div>
-
-  <div class="relative z-10 max-w-7xl mx-auto px-6 py-24 text-center">
-
-    <!-- Badge -->
-    <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-xs font-medium text-cyan-300 animate-fade-in" style="animation-delay:.1s;opacity:0;">
-      <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse-slow inline-block"></span>
-      Plataforma Empresarial de Nueva Generación
+ 
+<!-- ══════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════ -->
+<nav id="navbar">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="#" class="footer-logo tracking-tight" style="font-size:1.3rem;">Axionix</a>
+ 
+      <!-- Desktop links -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#features" class="nav-link">Plataforma</a>
+        <a href="#contact"  class="nav-link">Contacto</a>
+      </div>
+ 
+      <!-- CTA desktop -->
+      <div class="hidden md:flex items-center gap-3">
+        <a href="#contact" class="btn-ghost" style="padding:0.55rem 1.25rem;font-size:0.85rem;">Agendar Demo</a>
+        <a href="#contact" class="btn-primary" style="padding:0.55rem 1.25rem;font-size:0.85rem;">Empezar Gratis</a>
+      </div>
+ 
+      <!-- Hamburger -->
+      <button id="hamburger" class="md:hidden flex flex-col justify-center gap-1.5 p-2 rounded-lg border border-white/10 hover:border-white/20 transition">
+        <span class="block w-5 h-0.5 bg-slate-400"></span>
+        <span class="block w-5 h-0.5 bg-slate-400"></span>
+        <span class="block w-5 h-0.5 bg-slate-400"></span>
+      </button>
     </div>
-
-    <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.08] mb-6 animate-fade-up" style="animation-delay:.2s;opacity:0;">
-      Eleva el Flujo de<br/>
-      <span class="grad-text">Trabajo de tu Empresa.</span>
+  </div>
+ 
+  <!-- Mobile menu -->
+  <div id="mobile-menu">
+    <a href="#features">Plataforma</a>
+    <a href="#contact">Contacto</a>
+    <a href="#contact" class="btn-primary mt-2" style="justify-content:center;">Empezar Gratis</a>
+  </div>
+</nav>
+ 
+ 
+<!-- ══════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<section id="hero">
+  <video id="hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="axionix-logo.mp4" type="video/mp4" />
+  </video>
+  <div id="hero-overlay"></div>
+ 
+  <div id="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Plataforma Empresarial · v2.0
+    </div>
+ 
+    <h1 class="hero-title">
+      Eleva el Flujo de<br />
+      <span>Trabajo de tu Empresa.</span>
     </h1>
-
-    <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 leading-relaxed mb-10 animate-fade-up" style="animation-delay:.35s;opacity:0;">
+ 
+    <p class="hero-sub">
       Transforma, conecta y automatiza los procesos de tu negocio con la plataforma de Axionix.
     </p>
-
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style="animation-delay:.5s;opacity:0;">
-      <a href="#contact" class="btn-primary inline-flex items-center gap-2 text-white font-semibold text-base px-8 py-3.5 rounded-2xl">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+ 
+    <div class="hero-ctas">
+      <a href="#contact" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         Comienza tu Prueba Gratis
       </a>
-      <a href="#contact" class="btn-ghost inline-flex items-center gap-2 text-white font-medium text-base px-8 py-3.5 rounded-2xl">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <a href="#contact" class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
         Agendar Demostración
       </a>
     </div>
-
-    <div class="mt-20 grid grid-cols-3 gap-6 max-w-xl mx-auto animate-fade-up" style="animation-delay:.65s;opacity:0;">
-      <div class="text-center">
-        <p class="text-3xl font-bold stat-num">98%</p>
-        <p class="text-xs text-slate-500 mt-1">Satisfacción del cliente</p>
+  </div>
+ 
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+  </div>
+</section>
+ 
+ 
+<!-- ══════════════════════════════════════
+     STATS BAR
+════════════════════════════════════════ -->
+<div id="stats">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
+      <div class="stat-item reveal">
+        <div class="stat-num">+500</div>
+        <div class="stat-label">Procesos Automatizados</div>
       </div>
-      <div class="text-center border-x border-white/10">
-        <p class="text-3xl font-bold stat-num">3x</p>
-        <p class="text-xs text-slate-500 mt-1">Mayor productividad</p>
+      <div class="stat-item reveal" style="transition-delay:0.1s">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Satisfacción de Clientes</div>
       </div>
-      <div class="text-center">
-        <p class="text-3xl font-bold stat-num">24/7</p>
-        <p class="text-xs text-slate-500 mt-1">Soporte dedicado</p>
+      <div class="stat-item reveal" style="transition-delay:0.2s">
+        <div class="stat-num">3×</div>
+        <div class="stat-label">Mayor Productividad</div>
+      </div>
+      <div class="stat-item reveal" style="transition-delay:0.3s">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Soporte Especializado</div>
       </div>
     </div>
   </div>
-
-  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-fade-in" style="animation-delay:1.2s;opacity:0;">
-    <span class="text-xs text-slate-600 uppercase tracking-widest">Descubrir</span>
-    <div class="w-px h-10 bg-gradient-to-b from-slate-600 to-transparent"></div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════  FEATURES  ════════════════════ -->
-<section id="features" class="relative py-32 overflow-hidden">
-  <div class="absolute inset-0 opacity-[.035] grid-bg"></div>
-
-  <div class="relative max-w-7xl mx-auto px-6">
-
-    <!-- Asymmetric layout -->
-    <div class="grid md:grid-cols-2 gap-16 items-start mb-20 reveal">
-
-      <!-- Left column -->
-      <div>
-        <span class="inline-block text-xs font-semibold tracking-[.2em] text-cyan-400 uppercase mb-4">Plataforma</span>
-        <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight mb-6">
-          Tecnología que<br/><span class="grad-text">impulsa resultados.</span>
+</div>
+ 
+ 
+<!-- ══════════════════════════════════════
+     FEATURES
+════════════════════════════════════════ -->
+<section id="features" class="py-28">
+  <div class="max-w-7xl mx-auto px-6">
+ 
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+ 
+      <!-- Left: copy -->
+      <div class="reveal">
+        <div class="section-tag">Plataforma</div>
+        <h2 class="section-title mb-6">
+          Tecnología que<br /><em>impulsa resultados</em>
         </h2>
-        <div class="w-12 h-1 rounded-full mb-6" style="background:linear-gradient(90deg,#2563EB,#06B6D4);"></div>
-        <p class="text-slate-400 leading-relaxed text-base max-w-sm">
-          Axionix es una plataforma empresarial avanzada que centraliza y potencia todos tus flujos de trabajo desde un solo lugar, sin fricción y con resultados medibles desde el primer día.
+        <p class="feature-desc mb-5">
+          <strong>Axionix</strong> es una plataforma empresarial avanzada diseñada para centralizar, automatizar y optimizar todos los flujos operativos de tu organización en un único ecosistema inteligente.
         </p>
-      </div>
-
-      <!-- Right column: 2x2 grid -->
-      <div class="grid grid-cols-2 gap-4">
-
-        <div class="glass glass-hover rounded-2xl p-6">
-          <div class="icon-wrap mb-4">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#60a5fa" stroke-width="1.8"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Automatización Inteligente</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Elimina tareas repetitivas con flujos impulsados por IA que aprenden y se adaptan a tu negocio.</p>
-        </div>
-
-        <div class="glass glass-hover rounded-2xl p-6">
-          <div class="icon-wrap mb-4">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Integración Universal</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Conecta con más de 200 herramientas empresariales mediante APIs nativas y conectores de bajo código.</p>
-        </div>
-
-        <div class="glass glass-hover rounded-2xl p-6">
-          <div class="icon-wrap mb-4">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="1.8"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Analítica en Tiempo Real</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Dashboards dinámicos con métricas clave para decisiones basadas en datos concretos.</p>
-        </div>
-
-        <div class="glass glass-hover rounded-2xl p-6">
-          <div class="icon-wrap mb-4">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fb923c" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h3 class="text-white font-semibold text-base mb-2">Seguridad Empresarial</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">Cifrado de extremo a extremo, SSO y control de acceso granular para cada proceso crítico.</p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- How it works -->
-    <div class="divider my-16 reveal"></div>
-    <div class="grid md:grid-cols-3 gap-8 reveal">
-      <div class="flex gap-4 items-start">
-        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-blue-400 text-sm font-bold" style="background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);">1</span>
-        <div>
-          <h4 class="text-white font-semibold mb-1">Configura en minutos</h4>
-          <p class="text-slate-400 text-sm leading-relaxed">Onboarding guiado sin necesidad de equipo técnico especializado.</p>
+        <p class="feature-desc mb-5">
+          Conecta equipos, integra sistemas heredados y obtén visibilidad total en tiempo real sobre el rendimiento de tu negocio. Desde gestión de inventarios hasta análisis predictivo, Axionix adapta su potencia a la escala y las necesidades únicas de tu empresa.
+        </p>
+        <p class="feature-desc">
+          Nuestra arquitectura modular permite una implementación ágil sin fricciones, garantizando que tu equipo adopte la plataforma desde el primer día con <strong>cero curva de aprendizaje</strong>.
+        </p>
+        <div class="mt-8">
+          <a href="#contact" class="btn-primary" style="display:inline-flex;">
+            Solicitar Demo Personalizada
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
         </div>
       </div>
-      <div class="flex gap-4 items-start">
-        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-content text-cyan-400 text-sm font-bold" style="background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.4);display:flex;align-items:center;justify-content:center;">2</span>
-        <div>
-          <h4 class="text-white font-semibold mb-1">Conecta tus herramientas</h4>
-          <p class="text-slate-400 text-sm leading-relaxed">Integra tu CRM, ERP, e-commerce y más con conectores nativos.</p>
+ 
+      <!-- Right: 2×2 feature grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+ 
+        <div class="glass-card reveal" style="transition-delay:0.1s">
+          <div class="feature-icon icon-blue">⚡</div>
+          <div class="feature-card-title">Automatización Inteligente</div>
+          <p class="feature-card-desc">Diseña flujos de trabajo sin código con motores de IA que aprenden y se optimizan continuamente.</p>
         </div>
-      </div>
-      <div class="flex gap-4 items-start">
-        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-blue-400 text-sm font-bold" style="background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);">3</span>
-        <div>
-          <h4 class="text-white font-semibold mb-1">Escala sin límites</h4>
-          <p class="text-slate-400 text-sm leading-relaxed">Infraestructura elástica en la nube que crece con tu empresa.</p>
+ 
+        <div class="glass-card reveal" style="transition-delay:0.2s">
+          <div class="feature-icon icon-cyan">🔗</div>
+          <div class="feature-card-title">Integraciones Nativas</div>
+          <p class="feature-card-desc">Conecta con más de 200 aplicaciones empresariales: ERP, CRM, e-commerce y herramientas operativas.</p>
         </div>
+ 
+        <div class="glass-card reveal" style="transition-delay:0.3s">
+          <div class="feature-icon icon-violet">📊</div>
+          <div class="feature-card-title">Analytics en Tiempo Real</div>
+          <p class="feature-card-desc">Dashboards interactivos y reportes predictivos para decisiones basadas en datos precisos y actualizados.</p>
+        </div>
+ 
+        <div class="glass-card reveal" style="transition-delay:0.4s">
+          <div class="feature-icon icon-emerald">🛡️</div>
+          <div class="feature-card-title">Seguridad Empresarial</div>
+          <p class="feature-card-desc">Cifrado de extremo a extremo, control de acceso granular y cumplimiento de normativas internacionales.</p>
+        </div>
+ 
       </div>
     </div>
-
+ 
   </div>
 </section>
-
-
-<!-- ═════════════  SOCIAL PROOF BANNER  ═════════════════ -->
-<div class="divider"></div>
-<section class="py-16">
-  <div class="max-w-7xl mx-auto px-6 text-center reveal">
-    <p class="text-slate-500 text-sm uppercase tracking-widest font-medium mb-8">Confiado por empresas que transforman su industria</p>
-    <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-6">
-      <span class="text-slate-600 font-bold text-lg tracking-wider">YAZAKI</span>
-      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-      <span class="text-slate-600 font-bold text-lg tracking-wider">LEAR</span>
-      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-      <span class="text-slate-600 font-bold text-lg tracking-wider">APTIV</span>
-      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-      <span class="text-slate-600 font-bold text-lg tracking-wider">TRACTOPARTES</span>
-      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
-      <span class="text-slate-600 font-bold text-lg tracking-wider">MAMBORETA</span>
+ 
+ 
+<div class="glow-divider"></div>
+ 
+ 
+<!-- ══════════════════════════════════════
+     HOW IT WORKS (extra value section)
+════════════════════════════════════════ -->
+<section class="py-24">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <div class="section-tag justify-center reveal">Proceso</div>
+    <h2 class="section-title mb-4 reveal">Implementa en 3 pasos simples</h2>
+    <p class="text-slate-500 max-w-xl mx-auto mb-14 reveal" style="font-size:1rem;line-height:1.7;">
+      Nuestro equipo de expertos te guía desde la configuración inicial hasta el despliegue completo.
+    </p>
+ 
+    <div class="grid md:grid-cols-3 gap-6">
+ 
+      <div class="glass-card text-left reveal">
+        <div class="text-xs font-bold tracking-widest text-blue-400 mb-3 uppercase">Paso 01</div>
+        <h3 style="font-size:1.05rem;font-weight:700;color:#F1F5F9;margin-bottom:0.5rem;letter-spacing:-0.02em;">Diagnóstico y Mapeo</h3>
+        <p class="feature-card-desc">Analizamos tus procesos actuales e identificamos las oportunidades de automatización con mayor impacto.</p>
+      </div>
+ 
+      <div class="glass-card text-left reveal" style="transition-delay:0.15s">
+        <div class="text-xs font-bold tracking-widest text-cyan-400 mb-3 uppercase">Paso 02</div>
+        <h3 style="font-size:1.05rem;font-weight:700;color:#F1F5F9;margin-bottom:0.5rem;letter-spacing:-0.02em;">Configuración e Integración</h3>
+        <p class="feature-card-desc">Conectamos Axionix con tus sistemas existentes y configuramos flujos personalizados a tu operación.</p>
+      </div>
+ 
+      <div class="glass-card text-left reveal" style="transition-delay:0.3s">
+        <div class="text-xs font-bold tracking-widest text-emerald-400 mb-3 uppercase">Paso 03</div>
+        <h3 style="font-size:1.05rem;font-weight:700;color:#F1F5F9;margin-bottom:0.5rem;letter-spacing:-0.02em;">Lanzamiento y Soporte</h3>
+        <p class="feature-card-desc">Tu equipo entra en producción con capacitación y acompañamiento continuo de nuestros especialistas.</p>
+      </div>
+ 
     </div>
   </div>
 </section>
-<div class="divider"></div>
-
-
-<!-- ═══════════════════════  CONTACT  ═════════════════════ -->
-<section id="contact" class="relative py-32 overflow-hidden">
-  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full pointer-events-none" style="background:rgba(37,99,235,.1);filter:blur(100px);"></div>
-
-  <div class="relative max-w-7xl mx-auto px-6">
-
-    <div class="text-center mb-16 reveal">
-      <span class="inline-block text-xs font-semibold tracking-[.2em] text-cyan-400 uppercase mb-4">Equipo</span>
-      <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-5">
-        Contacta a Nuestros <span class="grad-text">Expertos</span>
-      </h2>
-      <p class="text-slate-400 leading-relaxed max-w-lg mx-auto">
-        Habla directamente con los especialistas que implementarán y optimizarán Axionix para tu empresa.
+ 
+ 
+<div class="glow-divider"></div>
+ 
+ 
+<!-- ══════════════════════════════════════
+     CONTACT / TEAM
+════════════════════════════════════════ -->
+<section id="contact" class="py-28">
+  <div class="max-w-7xl mx-auto px-6">
+ 
+    <div class="text-center mb-16">
+      <div class="section-tag justify-center reveal">Equipo</div>
+      <h2 class="section-title mb-4 reveal">Contacta a Nuestros <em>Expertos</em></h2>
+      <p class="text-slate-500 max-w-lg mx-auto reveal" style="font-size:1rem;line-height:1.7;">
+        Nuestro equipo está listo para mostrarte cómo Axionix puede transformar la operación de tu empresa.
       </p>
     </div>
-
-    <!-- 2-col contact grid -->
-    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-
-      <!-- Card Rodrigo -->
-      <div class="glass contact-card rounded-2xl p-8 reveal">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl text-white flex-shrink-0" style="background:linear-gradient(135deg,#2563EB,#06B6D4);">R</div>
-          <div class="min-w-0">
-            <h3 class="text-white font-bold text-xl">Rodrigo</h3>
-            <p class="text-slate-400 text-sm">Líder de Soluciones de Flujo de Trabajo</p>
+ 
+    <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+ 
+      <!-- Card: Rodrigo -->
+      <div class="expert-card reveal">
+        <div class="flex items-start gap-4">
+          <div class="expert-avatar">R</div>
+          <div>
+            <div class="expert-name">Rodrigo</div>
+            <div class="expert-role">Líder de Soluciones</div>
           </div>
-          <span class="ml-auto flex-shrink-0 flex items-center gap-1.5 text-xs text-green-400">
-            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow"></span>
-            Disponible
-          </span>
         </div>
-        <p class="text-slate-400 text-sm leading-relaxed mb-7">
-          Especialista en diseño e implementación de flujos de trabajo con IA. Guía a los clientes desde el diagnóstico inicial hasta la optimización continua de sus procesos.
+        <p style="font-size:0.875rem;color:#64748B;line-height:1.6;margin-bottom:1.25rem;">
+          Especialista en implementación y estrategia de automatización empresarial. Te guía desde el diagnóstico hasta el despliegue final.
         </p>
-        <div class="flex flex-col gap-3">
-          <a href="https://wa.me/526182225975" target="_blank" rel="noopener noreferrer" class="action-link action-wa">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.554 4.112 1.523 5.842L.057 23.857a.5.5 0 0 0 .614.614l6.015-1.466A11.942 11.942 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.653-.5-5.18-1.375l-.372-.217-3.865.941.941-3.865-.217-.372A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-            WhatsApp
+        <div class="contact-links">
+          <a href="https://wa.me/526182225975" target="_blank" rel="noopener" class="contact-link">
+            <!-- WhatsApp icon -->
+            <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor" style="color:#25D366;">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            +52 618 222 5975
           </a>
-          <a href="mailto:rodrigost1455@gmail.com" class="action-link action-email">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:rodrigost1455@gmail.com" class="contact-link">
+            <!-- Email icon -->
+            <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#3B82F6;">
+              <rect x="2" y="4" width="20" height="16" rx="3"/>
+              <path d="m2 7 10 7 10-7"/>
+            </svg>
             rodrigost1455@gmail.com
           </a>
         </div>
       </div>
-
-      <!-- Card Diego -->
-      <div class="glass contact-card rounded-2xl p-8 reveal" style="transition-delay:.12s">
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl text-white flex-shrink-0" style="background:linear-gradient(135deg,#7c3aed,#2563EB);">D</div>
-          <div class="min-w-0">
-            <h3 class="text-white font-bold text-xl">Diego</h3>
-            <p class="text-slate-400 text-sm">Director de Integración</p>
+ 
+      <!-- Card: Diego -->
+      <div class="expert-card reveal" style="transition-delay:0.15s">
+        <div class="flex items-start gap-4">
+          <div class="expert-avatar" style="background:linear-gradient(135deg,#0891b2,#06b6d4);">D</div>
+          <div>
+            <div class="expert-name">Diego</div>
+            <div class="expert-role">Director de Integración</div>
           </div>
-          <span class="ml-auto flex-shrink-0 flex items-center gap-1.5 text-xs text-green-400">
-            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow"></span>
-            Disponible
-          </span>
         </div>
-        <p class="text-slate-400 text-sm leading-relaxed mb-7">
-          Experto en arquitectura de integraciones y ecosistemas tecnológicos empresariales. Asegura una conexión fluida entre Axionix y todos los sistemas de tu organización.
+        <p style="font-size:0.875rem;color:#64748B;line-height:1.6;margin-bottom:1.25rem;">
+          Experto en arquitectura de integraciones y conexión de sistemas empresariales. Diseña la solución técnica ideal para tu infraestructura.
         </p>
-        <div class="flex flex-col gap-3">
-          <a href="https://wa.me/526182562935" target="_blank" rel="noopener noreferrer" class="action-link action-wa">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.554 4.112 1.523 5.842L.057 23.857a.5.5 0 0 0 .614.614l6.015-1.466A11.942 11.942 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.653-.5-5.18-1.375l-.372-.217-3.865.941.941-3.865-.217-.372A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-            WhatsApp
+        <div class="contact-links">
+          <a href="https://wa.me/526182562935" target="_blank" rel="noopener" class="contact-link">
+            <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor" style="color:#25D366;">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            +52 618 256 2935
           </a>
-          <a href="mailto:diegocovars960@gmail.com" class="action-link action-email">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:diegocovars960@gmail.com" class="contact-link">
+            <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#3B82F6;">
+              <rect x="2" y="4" width="20" height="16" rx="3"/>
+              <path d="m2 7 10 7 10-7"/>
+            </svg>
             diegocovars960@gmail.com
           </a>
         </div>
       </div>
-
+ 
     </div>
-
-    <!-- CTA box -->
-    <div class="mt-12 max-w-2xl mx-auto glass rounded-2xl p-8 text-center reveal" style="transition-delay:.2s">
-      <p class="text-white font-semibold text-lg mb-2">¿Listo para transformar tu empresa?</p>
-      <p class="text-slate-400 text-sm leading-relaxed mb-6">Agenda una demostración personalizada de 30 minutos sin costo. Nuestros expertos analizarán tus procesos y te mostrarán el impacto real de Axionix.</p>
-      <a href="https://wa.me/526182225975" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center gap-2 text-white font-semibold px-8 py-3.5 rounded-xl text-sm">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        Contactar Ahora
-      </a>
-    </div>
-
   </div>
 </section>
-
-
-<!-- ═══════════════════════  FOOTER  ══════════════════════ -->
-<footer class="border-t border-white/[.07]">
-  <div class="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-
-    <div class="flex items-center gap-2.5">
-      <span class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center text-white font-black text-xs">A</span>
-      <span class="text-white font-semibold text-base tracking-tight">Axionix</span>
+ 
+ 
+<!-- ══════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer class="py-10">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+ 
+      <div>
+        <div class="footer-logo mb-1">Axionix</div>
+        <p style="font-size:0.8rem;color:#334155;">Plataforma de Automatización Empresarial</p>
+      </div>
+ 
+      <div class="flex items-center gap-4">
+        <!-- Instagram -->
+        <a href="https://www.instagram.com/axionix_co?igsh=MXNnanE4MnN0dGRvOA==" target="_blank" rel="noopener" class="social-btn" title="Instagram de Axionix">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+ 
+        <!-- WhatsApp (general contact) -->
+        <a href="https://wa.me/526182225975" target="_blank" rel="noopener" class="social-btn" title="WhatsApp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+        </a>
+ 
+        <!-- Email -->
+        <a href="mailto:rodrigost1455@gmail.com" class="social-btn" title="Email">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="3"/>
+            <path d="m2 7 10 7 10-7"/>
+          </svg>
+        </a>
+      </div>
+ 
+      <p style="font-size:0.8rem;color:#334155;text-align:center;">
+        © 2026 Axionix. Todos los derechos reservados.
+      </p>
+ 
     </div>
-
-    <p class="text-slate-500 text-sm">© 2026 Axionix. Todos los derechos reservados.</p>
-
-    <a href="https://www.instagram.com/axionix_co?igsh=MXNnanE4MnN0dGRvOA==" target="_blank" rel="noopener noreferrer" class="social-icon text-slate-500 hover:text-cyan-400 flex items-center gap-2 text-sm transition-colors">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-      </svg>
-      @axionix_co
-    </a>
-
   </div>
 </footer>
-
-
-<!-- ═══════════════════════  SCRIPTS  ═════════════════════ -->
+ 
+ 
+<!-- ══════════════════════════════════════
+     JS
+════════════════════════════════════════ -->
 <script>
-  // Navbar scroll blur
+  // ── Navbar scroll state
   const navbar = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 40);
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
-
-  // Scroll-reveal with IntersectionObserver
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+ 
+  // ── Mobile menu toggle
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('open');
+  });
+  // Close on link click
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+ 
+  // ── Intersection Observer for reveal animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
     });
   }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+ 
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+ 
+  // ── Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', e => {
+      const target = document.querySelector(anchor.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+ 
+  // ── Animated counters
+  function animateCount(el, target, suffix) {
+    let start = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        el.textContent = '+' + target + suffix;
+        clearInterval(timer);
+      } else {
+        el.textContent = '+' + Math.floor(start) + suffix;
+      }
+    }, 16);
+  }
+ 
+  // Trigger counter animation when stats section enters view
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const nums = entry.target.querySelectorAll('.stat-num');
+        // Animate the first one (+500)
+        if (nums[0]) {
+          let v = 0;
+          const t = setInterval(() => {
+            v += 9;
+            if (v >= 500) { nums[0].textContent = '+500'; clearInterval(t); }
+            else nums[0].textContent = '+' + v;
+          }, 16);
+        }
+        statsObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+ 
+  const statsEl = document.getElementById('stats');
+  if (statsEl) statsObserver.observe(statsEl);
 </script>
-
+ 
 </body>
 </html>
+ 
