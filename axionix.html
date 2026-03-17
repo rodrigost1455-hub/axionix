@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axionix — Plataforma Empresarial de Automatización</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            navy:     { DEFAULT: '#0F172A', 900: '#070E1A', 800: '#0F172A', 700: '#1E293B' },
+            electric: { DEFAULT: '#2563EB', light: '#3B82F6', dark: '#1D4ED8' },
+            cyanx:    { DEFAULT: '#06B6D4', light: '#22D3EE', dark: '#0891B2' },
+          },
+          animation: {
+            'fade-up':    'fadeUp 0.7s ease forwards',
+            'fade-in':    'fadeIn 1s ease forwards',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeUp: { from: { opacity:'0', transform:'translateY(28px)' }, to: { opacity:'1', transform:'translateY(0)' } },
+            fadeIn: { from: { opacity:'0' }, to: { opacity:'1' } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-family: 'Inter', sans-serif; }
+    body { background: #0F172A; color: #e2e8f0; overflow-x: hidden; }
+
+    /* Orbs */
+    .orb { position:absolute; border-radius:50%; filter:blur(80px); animation:float 8s ease-in-out infinite alternate; pointer-events:none; }
+    .orb-1 { width:520px; height:520px; background:radial-gradient(circle,rgba(37,99,235,.35) 0%,transparent 70%); top:-100px; left:-120px; animation-delay:0s; }
+    .orb-2 { width:420px; height:420px; background:radial-gradient(circle,rgba(6,182,212,.28) 0%,transparent 70%); top:40%; right:-80px; animation-delay:-3s; }
+    .orb-3 { width:340px; height:340px; background:radial-gradient(circle,rgba(37,99,235,.22) 0%,transparent 70%); bottom:10%; left:30%; animation-delay:-5s; }
+    @keyframes float { from{transform:translateY(0) scale(1);} to{transform:translateY(-40px) scale(1.05);} }
+
+    /* Glass */
+    .glass { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+    .glass-hover { transition:background .3s,border-color .3s,box-shadow .3s,transform .3s; }
+    .glass-hover:hover { background:rgba(255,255,255,.075); border-color:rgba(37,99,235,.4); box-shadow:0 0 40px rgba(37,99,235,.18),0 8px 32px rgba(0,0,0,.4); transform:translateY(-4px); }
+    .contact-card { transition:background .3s,border-color .3s,box-shadow .3s,transform .3s; }
+    .contact-card:hover { background:rgba(255,255,255,.075); border-color:rgba(37,99,235,.5); box-shadow:0 0 60px rgba(37,99,235,.22),0 16px 48px rgba(0,0,0,.5); transform:translateY(-4px); }
+
+    /* Buttons */
+    .btn-primary { background:linear-gradient(135deg,#2563EB 0%,#1d4ed8 100%); box-shadow:0 4px 24px rgba(37,99,235,.45); transition:box-shadow .3s,transform .2s,background .3s; }
+    .btn-primary:hover { box-shadow:0 6px 36px rgba(37,99,235,.65); background:linear-gradient(135deg,#3b82f6 0%,#2563EB 100%); transform:translateY(-2px); }
+    .btn-ghost { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); backdrop-filter:blur(10px); transition:background .3s,border-color .3s,transform .2s,box-shadow .3s; }
+    .btn-ghost:hover { background:rgba(255,255,255,.12); border-color:rgba(6,182,212,.5); box-shadow:0 0 20px rgba(6,182,212,.2); transform:translateY(-2px); }
+
+    /* Icon wrap */
+    .icon-wrap { background:linear-gradient(135deg,rgba(37,99,235,.25) 0%,rgba(6,182,212,.15) 100%); border:1px solid rgba(37,99,235,.3); border-radius:14px; padding:12px; width:52px; height:52px; display:flex; align-items:center; justify-content:center; transition:box-shadow .3s; }
+    .glass-hover:hover .icon-wrap { box-shadow:0 0 20px rgba(37,99,235,.4); }
+
+    /* Gradient text */
+    .grad-text { background:linear-gradient(135deg,#ffffff 20%,#93c5fd 60%,#06B6D4 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* Divider */
+    .divider { height:1px; background:linear-gradient(90deg,transparent,rgba(37,99,235,.4),rgba(6,182,212,.4),transparent); }
+
+    /* Navbar */
+    #navbar { transition:background .4s,box-shadow .4s; }
+    #navbar.scrolled { background:rgba(7,14,26,.85); backdrop-filter:blur(20px); box-shadow:0 1px 0 rgba(255,255,255,.06); }
+
+    /* Scroll reveal */
+    .reveal { opacity:0; transform:translateY(30px); transition:opacity .7s ease,transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* Action links */
+    .action-link { display:inline-flex; align-items:center; gap:8px; padding:9px 18px; border-radius:10px; font-size:.875rem; font-weight:500; transition:background .25s,transform .2s,box-shadow .25s; text-decoration:none; }
+    .action-wa    { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.25); color:#86efac; }
+    .action-wa:hover { background:rgba(34,197,94,.22); box-shadow:0 0 18px rgba(34,197,94,.25); transform:translateY(-1px); }
+    .action-email { background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.3); color:#93c5fd; }
+    .action-email:hover { background:rgba(37,99,235,.22); box-shadow:0 0 18px rgba(37,99,235,.25); transform:translateY(-1px); }
+
+    /* Hero video */
+    .hero-video   { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+    .hero-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(7,14,26,.78) 0%,rgba(15,23,42,.65) 50%,rgba(7,14,26,.92) 100%); z-index:1; }
+
+    /* Stat gradient */
+    .stat-num { background:linear-gradient(135deg,#60a5fa,#22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* Social icon */
+    .social-icon { transition:transform .25s,color .25s; }
+    .social-icon:hover { transform:scale(1.2) translateY(-2px); color:#06B6D4; }
+
+    /* Grid bg texture */
+    .grid-bg { background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px); background-size:64px 64px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════  NAVBAR  ═══════════════════════ -->
+<header id="navbar" class="fixed top-0 inset-x-0 z-50 py-4">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-lg btn-primary flex items-center justify-center text-white font-black text-sm">A</span>
+      <span class="text-white font-bold text-xl tracking-tight">Axionix</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-8">
+      <a href="#features" class="text-slate-400 hover:text-white text-sm font-medium transition-colors">Características</a>
+      <a href="#contact"  class="text-slate-400 hover:text-white text-sm font-medium transition-colors">Contacto</a>
+    </nav>
+    <a href="#contact" class="hidden md:inline-flex btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-xl">Hablar con un Experto</a>
+  </div>
+</header>
+
+
+<!-- ═══════════════════════  HERO  ════════════════════════ -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <video class="hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="SaaS_Logo_Animation_Request_Fulfilled.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-overlay"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-6 py-24 text-center">
+
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-xs font-medium text-cyan-300 animate-fade-in" style="animation-delay:.1s;opacity:0;">
+      <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse-slow inline-block"></span>
+      Plataforma Empresarial de Nueva Generación
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.08] mb-6 animate-fade-up" style="animation-delay:.2s;opacity:0;">
+      Eleva el Flujo de<br/>
+      <span class="grad-text">Trabajo de tu Empresa.</span>
+    </h1>
+
+    <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 leading-relaxed mb-10 animate-fade-up" style="animation-delay:.35s;opacity:0;">
+      Transforma, conecta y automatiza los procesos de tu negocio con la plataforma de Axionix.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style="animation-delay:.5s;opacity:0;">
+      <a href="#contact" class="btn-primary inline-flex items-center gap-2 text-white font-semibold text-base px-8 py-3.5 rounded-2xl">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Comienza tu Prueba Gratis
+      </a>
+      <a href="#contact" class="btn-ghost inline-flex items-center gap-2 text-white font-medium text-base px-8 py-3.5 rounded-2xl">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Agendar Demostración
+      </a>
+    </div>
+
+    <div class="mt-20 grid grid-cols-3 gap-6 max-w-xl mx-auto animate-fade-up" style="animation-delay:.65s;opacity:0;">
+      <div class="text-center">
+        <p class="text-3xl font-bold stat-num">98%</p>
+        <p class="text-xs text-slate-500 mt-1">Satisfacción del cliente</p>
+      </div>
+      <div class="text-center border-x border-white/10">
+        <p class="text-3xl font-bold stat-num">3x</p>
+        <p class="text-xs text-slate-500 mt-1">Mayor productividad</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl font-bold stat-num">24/7</p>
+        <p class="text-xs text-slate-500 mt-1">Soporte dedicado</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-fade-in" style="animation-delay:1.2s;opacity:0;">
+    <span class="text-xs text-slate-600 uppercase tracking-widest">Descubrir</span>
+    <div class="w-px h-10 bg-gradient-to-b from-slate-600 to-transparent"></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════  FEATURES  ════════════════════ -->
+<section id="features" class="relative py-32 overflow-hidden">
+  <div class="absolute inset-0 opacity-[.035] grid-bg"></div>
+
+  <div class="relative max-w-7xl mx-auto px-6">
+
+    <!-- Asymmetric layout -->
+    <div class="grid md:grid-cols-2 gap-16 items-start mb-20 reveal">
+
+      <!-- Left column -->
+      <div>
+        <span class="inline-block text-xs font-semibold tracking-[.2em] text-cyan-400 uppercase mb-4">Plataforma</span>
+        <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight mb-6">
+          Tecnología que<br/><span class="grad-text">impulsa resultados.</span>
+        </h2>
+        <div class="w-12 h-1 rounded-full mb-6" style="background:linear-gradient(90deg,#2563EB,#06B6D4);"></div>
+        <p class="text-slate-400 leading-relaxed text-base max-w-sm">
+          Axionix es una plataforma empresarial avanzada que centraliza y potencia todos tus flujos de trabajo desde un solo lugar, sin fricción y con resultados medibles desde el primer día.
+        </p>
+      </div>
+
+      <!-- Right column: 2x2 grid -->
+      <div class="grid grid-cols-2 gap-4">
+
+        <div class="glass glass-hover rounded-2xl p-6">
+          <div class="icon-wrap mb-4">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#60a5fa" stroke-width="1.8"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="text-white font-semibold text-base mb-2">Automatización Inteligente</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Elimina tareas repetitivas con flujos impulsados por IA que aprenden y se adaptan a tu negocio.</p>
+        </div>
+
+        <div class="glass glass-hover rounded-2xl p-6">
+          <div class="icon-wrap mb-4">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <h3 class="text-white font-semibold text-base mb-2">Integración Universal</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Conecta con más de 200 herramientas empresariales mediante APIs nativas y conectores de bajo código.</p>
+        </div>
+
+        <div class="glass glass-hover rounded-2xl p-6">
+          <div class="icon-wrap mb-4">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" stroke-width="1.8"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg>
+          </div>
+          <h3 class="text-white font-semibold text-base mb-2">Analítica en Tiempo Real</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Dashboards dinámicos con métricas clave para decisiones basadas en datos concretos.</p>
+        </div>
+
+        <div class="glass glass-hover rounded-2xl p-6">
+          <div class="icon-wrap mb-4">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fb923c" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="text-white font-semibold text-base mb-2">Seguridad Empresarial</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Cifrado de extremo a extremo, SSO y control de acceso granular para cada proceso crítico.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="divider my-16 reveal"></div>
+    <div class="grid md:grid-cols-3 gap-8 reveal">
+      <div class="flex gap-4 items-start">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-blue-400 text-sm font-bold" style="background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);">1</span>
+        <div>
+          <h4 class="text-white font-semibold mb-1">Configura en minutos</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">Onboarding guiado sin necesidad de equipo técnico especializado.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-content text-cyan-400 text-sm font-bold" style="background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.4);display:flex;align-items:center;justify-content:center;">2</span>
+        <div>
+          <h4 class="text-white font-semibold mb-1">Conecta tus herramientas</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">Integra tu CRM, ERP, e-commerce y más con conectores nativos.</p>
+        </div>
+      </div>
+      <div class="flex gap-4 items-start">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-blue-400 text-sm font-bold" style="background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);">3</span>
+        <div>
+          <h4 class="text-white font-semibold mb-1">Escala sin límites</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">Infraestructura elástica en la nube que crece con tu empresa.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═════════════  SOCIAL PROOF BANNER  ═════════════════ -->
+<div class="divider"></div>
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-6 text-center reveal">
+    <p class="text-slate-500 text-sm uppercase tracking-widest font-medium mb-8">Confiado por empresas que transforman su industria</p>
+    <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-6">
+      <span class="text-slate-600 font-bold text-lg tracking-wider">YAZAKI</span>
+      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+      <span class="text-slate-600 font-bold text-lg tracking-wider">LEAR</span>
+      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+      <span class="text-slate-600 font-bold text-lg tracking-wider">APTIV</span>
+      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+      <span class="text-slate-600 font-bold text-lg tracking-wider">TRACTOPARTES</span>
+      <span class="w-1 h-1 rounded-full bg-slate-700"></span>
+      <span class="text-slate-600 font-bold text-lg tracking-wider">MAMBORETA</span>
+    </div>
+  </div>
+</section>
+<div class="divider"></div>
+
+
+<!-- ═══════════════════════  CONTACT  ═════════════════════ -->
+<section id="contact" class="relative py-32 overflow-hidden">
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full pointer-events-none" style="background:rgba(37,99,235,.1);filter:blur(100px);"></div>
+
+  <div class="relative max-w-7xl mx-auto px-6">
+
+    <div class="text-center mb-16 reveal">
+      <span class="inline-block text-xs font-semibold tracking-[.2em] text-cyan-400 uppercase mb-4">Equipo</span>
+      <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-5">
+        Contacta a Nuestros <span class="grad-text">Expertos</span>
+      </h2>
+      <p class="text-slate-400 leading-relaxed max-w-lg mx-auto">
+        Habla directamente con los especialistas que implementarán y optimizarán Axionix para tu empresa.
+      </p>
+    </div>
+
+    <!-- 2-col contact grid -->
+    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+
+      <!-- Card Rodrigo -->
+      <div class="glass contact-card rounded-2xl p-8 reveal">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl text-white flex-shrink-0" style="background:linear-gradient(135deg,#2563EB,#06B6D4);">R</div>
+          <div class="min-w-0">
+            <h3 class="text-white font-bold text-xl">Rodrigo</h3>
+            <p class="text-slate-400 text-sm">Líder de Soluciones de Flujo de Trabajo</p>
+          </div>
+          <span class="ml-auto flex-shrink-0 flex items-center gap-1.5 text-xs text-green-400">
+            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow"></span>
+            Disponible
+          </span>
+        </div>
+        <p class="text-slate-400 text-sm leading-relaxed mb-7">
+          Especialista en diseño e implementación de flujos de trabajo con IA. Guía a los clientes desde el diagnóstico inicial hasta la optimización continua de sus procesos.
+        </p>
+        <div class="flex flex-col gap-3">
+          <a href="https://wa.me/526182225975" target="_blank" rel="noopener noreferrer" class="action-link action-wa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.554 4.112 1.523 5.842L.057 23.857a.5.5 0 0 0 .614.614l6.015-1.466A11.942 11.942 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.653-.5-5.18-1.375l-.372-.217-3.865.941.941-3.865-.217-.372A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            WhatsApp
+          </a>
+          <a href="mailto:rodrigost1455@gmail.com" class="action-link action-email">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            rodrigost1455@gmail.com
+          </a>
+        </div>
+      </div>
+
+      <!-- Card Diego -->
+      <div class="glass contact-card rounded-2xl p-8 reveal" style="transition-delay:.12s">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl text-white flex-shrink-0" style="background:linear-gradient(135deg,#7c3aed,#2563EB);">D</div>
+          <div class="min-w-0">
+            <h3 class="text-white font-bold text-xl">Diego</h3>
+            <p class="text-slate-400 text-sm">Director de Integración</p>
+          </div>
+          <span class="ml-auto flex-shrink-0 flex items-center gap-1.5 text-xs text-green-400">
+            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow"></span>
+            Disponible
+          </span>
+        </div>
+        <p class="text-slate-400 text-sm leading-relaxed mb-7">
+          Experto en arquitectura de integraciones y ecosistemas tecnológicos empresariales. Asegura una conexión fluida entre Axionix y todos los sistemas de tu organización.
+        </p>
+        <div class="flex flex-col gap-3">
+          <a href="https://wa.me/526182562935" target="_blank" rel="noopener noreferrer" class="action-link action-wa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.122.554 4.112 1.523 5.842L.057 23.857a.5.5 0 0 0 .614.614l6.015-1.466A11.942 11.942 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.653-.5-5.18-1.375l-.372-.217-3.865.941.941-3.865-.217-.372A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            WhatsApp
+          </a>
+          <a href="mailto:diegocovars960@gmail.com" class="action-link action-email">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            diegocovars960@gmail.com
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA box -->
+    <div class="mt-12 max-w-2xl mx-auto glass rounded-2xl p-8 text-center reveal" style="transition-delay:.2s">
+      <p class="text-white font-semibold text-lg mb-2">¿Listo para transformar tu empresa?</p>
+      <p class="text-slate-400 text-sm leading-relaxed mb-6">Agenda una demostración personalizada de 30 minutos sin costo. Nuestros expertos analizarán tus procesos y te mostrarán el impacto real de Axionix.</p>
+      <a href="https://wa.me/526182225975" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center gap-2 text-white font-semibold px-8 py-3.5 rounded-xl text-sm">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        Contactar Ahora
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════  FOOTER  ══════════════════════ -->
+<footer class="border-t border-white/[.07]">
+  <div class="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+
+    <div class="flex items-center gap-2.5">
+      <span class="w-7 h-7 rounded-lg btn-primary flex items-center justify-center text-white font-black text-xs">A</span>
+      <span class="text-white font-semibold text-base tracking-tight">Axionix</span>
+    </div>
+
+    <p class="text-slate-500 text-sm">© 2026 Axionix. Todos los derechos reservados.</p>
+
+    <a href="https://www.instagram.com/axionix_co?igsh=MXNnanE4MnN0dGRvOA==" target="_blank" rel="noopener noreferrer" class="social-icon text-slate-500 hover:text-cyan-400 flex items-center gap-2 text-sm transition-colors">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      </svg>
+      @axionix_co
+    </a>
+
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════  SCRIPTS  ═════════════════════ -->
+<script>
+  // Navbar scroll blur
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // Scroll-reveal with IntersectionObserver
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
