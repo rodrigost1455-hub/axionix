@@ -12,13 +12,13 @@ function Navbar() {
   return (
     <nav className="nav">
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
-        <a href="Landing.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'var(--text)' }}>
+        <a href="index.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'var(--text)' }}>
           <div className="logo-mark" />
           <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.01em' }}>AXIONIX</span>
           <span className="mono" style={{ fontSize: 10, color: 'var(--accent)', border: '1px solid rgba(34,211,238,0.3)', padding: '2px 6px', borderRadius: 4, marginLeft: 4, background: 'rgba(34,211,238,0.06)' }}>PROYECTOS</span>
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="hide-mobile">
-          <a href="Landing.html" className="nav-link">Plataforma</a>
+          <a href="index.html" className="nav-link">Plataforma</a>
           <a href="POS.html" className="nav-link">POS</a>
           <a href="#" className="nav-link active">Proyectos</a>
           <a href="#contacto" className="nav-link">Contacto</a>
@@ -287,7 +287,7 @@ function ContactCTA() {
             <span className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>© 2026 · Durango, MX</span>
           </div>
           <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'var(--text-dim)' }}>
-            <a href="Landing.html" style={{ color: 'inherit', textDecoration: 'none' }}>Plataforma</a>
+            <a href="index.html" style={{ color: 'inherit', textDecoration: 'none' }}>Plataforma</a>
             <a href="POS.html" style={{ color: 'inherit', textDecoration: 'none' }}>POS</a>
             <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Proyectos</a>
             <a href="mailto:contact@axionixmx.com" style={{ color: 'inherit', textDecoration: 'none' }}>Contacto</a>
