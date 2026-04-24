@@ -17,16 +17,27 @@ Axionix es una plataforma empresarial y sistema de Punto de Venta (POS) en la nu
 ---
 
 ## 🏗️ Estructura del proyecto
+
 axionix/
+
 ├── index.html          # Landing page principal
+
 ├── POS.html            # Página de producto — Axionix POINT POS
+
 ├── Proyectos.html      # Portafolio y casos de éxito
+
 ├── app.jsx             # Componente principal / app React
+
 ├── pos.jsx             # Componente de la división POS
+
 ├── proyectos.jsx       # Componente de proyectos y portafolio
+
 ├── tweaks-panel.jsx    # Panel de configuración / tweaks
+
 ├── assets/             # Imágenes, íconos y recursos estáticos
+
 └── uploads/            # Archivos subidos / multimedia
+
 ---
 
 ## 🧩 Divisiones del producto
