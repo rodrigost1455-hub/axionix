@@ -653,19 +653,13 @@ function CasosList() {
       tag: 'Refaccionaria & Logística',
       title: 'Tracto Partes La Curva',
       desc: 'Agente de ventas IA + inventario con 1,867 productos',
-      url: 'https://tractopartes-production.up.railway.app',
+      url: 'https://tractoparteslacurva.netlify.app/',
     },
     {
       tag: 'Barbershop Luxury',
       title: 'BR Studio',
       desc: 'Sitio con sistema de reservas WhatsApp, estética dark marble/gold',
-      url: '#',
-    },
-    {
-      tag: 'Restaurante & Brunch',
-      title: 'Mamboreta Coffee',
-      desc: 'SPA interactivo con menú, reservaciones y animaciones',
-      url: '#',
+      url: 'https://bigote-rojo.vercel.app/',
     },
     {
       tag: 'Bar & Bebidas',
