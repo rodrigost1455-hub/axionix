@@ -30,8 +30,9 @@
     content: "";
     position: fixed; inset: 0;
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.18), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 85% 20%, rgba(34, 211, 238, 0.08), transparent 70%),
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.20), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 88% 15%, rgba(34, 211, 238, 0.10), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 8% 72%, rgba(139, 92, 246, 0.11), transparent 65%),
       linear-gradient(to bottom, #05070d, #05070d);
     pointer-events: none;
     z-index: 0;
@@ -48,6 +49,18 @@
     pointer-events: none;
     z-index: 0;
   }
+
+  /* Film grain / noise texture */
+  #ax-grain {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+  }
+
   .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   #root { position: relative; z-index: 1; }
 
@@ -109,6 +122,24 @@
     pointer-events: none;
   }
   .card:hover::before { opacity: 1; }
+
+  /* Gradient border wrapper for bento cards */
+  .card-wrap {
+    background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(59,130,246,0.14) 50%, rgba(139,92,246,0.10));
+    border-radius: 17px;
+    padding: 1px;
+    transition: background 0.35s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-wrap:hover {
+    background: linear-gradient(135deg, rgba(34,211,238,0.42), rgba(59,130,246,0.28) 50%, rgba(139,92,246,0.20));
+  }
+  .card-wrap > .card {
+    flex: 1;
+    border-color: transparent;
+    border-radius: 16px;
+  }
 
   /* Nav blur */
   .nav {
@@ -192,7 +223,7 @@
   }
 
   h1, h2, h3, h4 { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; margin: 0; }
-  h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 700; line-height: 1.02; letter-spacing: -0.035em; }
+  h1 { font-size: clamp(52px, 7vw, 96px); font-weight: 800; line-height: 1.0; letter-spacing: -0.04em; }
   h2 { font-size: clamp(28px, 3.5vw, 44px); font-weight: 600; line-height: 1.1; letter-spacing: -0.03em; }
   h3 { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; }
   p { margin: 0; line-height: 1.55; color: var(--text-dim); }
@@ -231,9 +262,17 @@
     box-shadow: 0 0 40px -5px var(--accent-glow);
   }
 
+  /* Section accent rule (between tag chip and headline) */
+  .section-rule {
+    width: 48px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
 </style>
 </head>
 <body>
+<div id="ax-grain" aria-hidden="true"></div>
 <div id="root"></div>
 <script type="text/babel" src="tweaks-panel.jsx"></script>
 <script type="text/babel" src="app.jsx"></script>
