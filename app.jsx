@@ -44,6 +44,12 @@ const Icon = {
       <path d="m22 7-10 6L2 7"/>
     </svg>
   ),
+  MapPin: (p) => (
+    <svg viewBox="0 0 24 24" width={p.size || 14} height={p.size || 14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+      <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
+  ),
 };
 
 // ---------- Navbar ----------
@@ -87,12 +93,77 @@ function Navbar() {
   );
 }
 
+// ---------- Hero Parallax Shapes ----------
+function HeroParallax() {
+  const shapesRef = useRef([]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const { innerWidth, innerHeight } = window;
+      const x = (e.clientX / innerWidth - 0.5) * 2;
+      const y = (e.clientY / innerHeight - 0.5) * 2;
+      const speeds = [10, 16, 8, 22, 13];
+      shapesRef.current.forEach((el, i) => {
+        if (!el) return;
+        el.style.transform = `translate(${x * speeds[i]}px, ${y * speeds[i]}px)`;
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  const base = { position: 'absolute', pointerEvents: 'none', transition: 'transform 0.12s ease-out' };
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+      {/* Large circle top-left */}
+      <svg ref={el => shapesRef.current[0] = el} style={{ ...base, top: '8%', left: '3%', opacity: 0.18 }} width="140" height="140" viewBox="0 0 140 140" fill="none">
+        <circle cx="70" cy="70" r="68" stroke="var(--accent)" strokeWidth="1.5"/>
+        <circle cx="70" cy="70" r="48" stroke="var(--accent)" strokeWidth="0.75" strokeDasharray="5 10"/>
+      </svg>
+
+      {/* Triangle bottom-left */}
+      <svg ref={el => shapesRef.current[1] = el} style={{ ...base, bottom: '15%', left: '1%', opacity: 0.15 }} width="90" height="90" viewBox="0 0 90 90" fill="none">
+        <polygon points="45,6 84,78 6,78" stroke="var(--accent-2)" strokeWidth="1.5"/>
+        <polygon points="45,22 70,66 20,66" stroke="var(--accent-2)" strokeWidth="0.5" opacity="0.6"/>
+      </svg>
+
+      {/* Hexagon top-right */}
+      <svg ref={el => shapesRef.current[2] = el} style={{ ...base, top: '12%', right: '6%', opacity: 0.2 }} width="100" height="100" viewBox="0 0 100 100" fill="none">
+        <polygon points="50,5 88,27.5 88,72.5 50,95 12,72.5 12,27.5" stroke="var(--accent)" strokeWidth="1.5"/>
+        <polygon points="50,22 72,34.5 72,59.5 50,72 28,59.5 28,34.5" stroke="var(--accent)" strokeWidth="0.6" opacity="0.5"/>
+      </svg>
+
+      {/* Cross bottom-right */}
+      <svg ref={el => shapesRef.current[3] = el} style={{ ...base, bottom: '20%', right: '4%', opacity: 0.22 }} width="56" height="56" viewBox="0 0 56 56" fill="none">
+        <line x1="28" y1="4" x2="28" y2="52" stroke="var(--accent-2)" strokeWidth="1.5"/>
+        <line x1="4" y1="28" x2="52" y2="28" stroke="var(--accent-2)" strokeWidth="1.5"/>
+        <circle cx="28" cy="28" r="6" stroke="var(--accent-2)" strokeWidth="1"/>
+      </svg>
+
+      {/* Rotated diamond mid-right */}
+      <svg ref={el => shapesRef.current[4] = el} style={{ ...base, top: '42%', right: '14%', opacity: 0.16 }} width="60" height="60" viewBox="0 0 60 60" fill="none">
+        <rect x="12" y="12" width="36" height="36" stroke="var(--accent)" strokeWidth="1.5" transform="rotate(45 30 30)"/>
+        <rect x="20" y="20" width="20" height="20" stroke="var(--accent)" strokeWidth="0.6" transform="rotate(45 30 30)"/>
+      </svg>
+
+      {/* Scan-line dots grid */}
+      <svg style={{ ...base, top: '30%', left: '8%', opacity: 0.12 }} width="80" height="80" viewBox="0 0 80 80" fill="none">
+        {[0,20,40,60].map(row => [0,20,40,60].map(col => (
+          <circle key={`${row}-${col}`} cx={col + 10} cy={row + 10} r="1.5" fill="var(--accent)"/>
+        )))}
+      </svg>
+    </div>
+  );
+}
+
 // ---------- Hero ----------
 function Hero() {
   const videoRef = useRef(null);
   return (
-    <section style={{ paddingTop: 72, paddingBottom: 88 }}>
-      <div className="container">
+    <section style={{ paddingTop: 72, paddingBottom: 88, position: 'relative', overflow: 'hidden' }}>
+      <HeroParallax />
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48, alignItems: 'center' }}>
           {/* copy */}
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.1fr)', gap: 56, alignItems: 'center' }} className="hero-grid">
@@ -196,6 +267,116 @@ function VideoPanel({ videoRef }) {
         </span>
       </div>
     </div>
+  );
+}
+
+// ---------- Big Stats ----------
+function StatItem({ value, suffix, prefix, label, decimals }) {
+  const [count, setCount] = useState(0);
+  const elRef = useRef(null);
+
+  useEffect(() => {
+    const el = elRef.current;
+    if (!el) return;
+    let started = false;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started) {
+        started = true;
+        const duration = 2000;
+        const startTime = performance.now();
+        const tick = (now) => {
+          const t = Math.min((now - startTime) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          setCount(parseFloat((eased * value).toFixed(decimals || 0)));
+          if (t < 1) requestAnimationFrame(tick);
+          else setCount(value);
+        };
+        requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.3 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value, decimals]);
+
+  const display = decimals > 0 ? count.toFixed(decimals) : Math.floor(count);
+
+  return (
+    <div ref={elRef} style={{
+      textAlign: 'center',
+      padding: '40px 20px',
+      borderRight: '1px solid var(--line)',
+      position: 'relative',
+    }} className="stat-item">
+      <div style={{
+        fontSize: 'clamp(56px, 9vw, 112px)',
+        fontWeight: 700,
+        color: 'var(--accent)',
+        lineHeight: 1,
+        letterSpacing: '-0.04em',
+        fontFamily: 'Inter, sans-serif',
+        marginBottom: 14,
+      }}>
+        {prefix}{display}{suffix}
+      </div>
+      <div style={{
+        fontSize: 13,
+        color: 'var(--text-faint)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        fontFamily: 'JetBrains Mono, monospace',
+      }}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function BigStats() {
+  const stats = [
+    { value: 7, suffix: '+', prefix: '', label: 'Clientes activos', decimals: 0 },
+    { value: 3, suffix: '', prefix: '', label: 'Divisiones del producto', decimals: 0 },
+    { value: 99.98, suffix: '%', prefix: '', label: 'Uptime SLA garantizado', decimals: 2 },
+    { value: 2, suffix: 'hrs', prefix: '< ', label: 'Tiempo de respuesta', decimals: 0 },
+  ];
+
+  return (
+    <section style={{ position: 'relative' }}>
+      {/* Top separator */}
+      <div style={{
+        height: 1,
+        background: 'linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent-2) 60%, var(--accent) 80%, transparent 100%)',
+      }} />
+
+      <div style={{ padding: '8px 0' }}>
+        <div className="container">
+          <div className="stats-grid">
+            {stats.map((s, i) => (
+              <StatItem key={i} {...s} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom separator */}
+      <div style={{
+        height: 1,
+        background: 'linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent-2) 60%, var(--accent) 80%, transparent 100%)',
+      }} />
+
+      <style>{`
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .stat-item:last-child { border-right: none; }
+        @media (max-width: 768px) {
+          .stats-grid { grid-template-columns: repeat(2, 1fr); }
+          .stat-item:nth-child(2) { border-right: none; }
+          .stat-item:nth-child(3) { border-right: 1px solid var(--line); border-top: 1px solid var(--line); }
+          .stat-item:nth-child(4) { border-right: none; border-top: 1px solid var(--line); }
+        }
+      `}</style>
+    </section>
   );
 }
 
@@ -311,7 +492,6 @@ function DivisionCard({ size, tag, title, subtitle, body, industries, accent, vi
 function CoreVisual() {
   return (
     <div style={{ position: 'absolute', inset: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {/* Fake calendar rows */}
       {[
         { t: '09:00', n: 'Limpieza dental', s: 'Dr. Ramírez', c: 'var(--accent)' },
         { t: '10:30', n: 'Corte + Barba', s: 'Miguel R.', c: '#3B82F6' },
@@ -375,11 +555,9 @@ function EnterpriseVisual() {
             <stop offset="1" stopColor="#A78BFA" stopOpacity="0.1"/>
           </linearGradient>
         </defs>
-        {/* grid lines */}
         {[0, 40, 80, 120, 160].map(y => (
           <line key={y} x1="20" y1={y + 10} x2="280" y2={y + 10} stroke="rgba(167,139,250,0.08)" />
         ))}
-        {/* bars */}
         {[45, 70, 55, 90, 75, 110, 95, 130, 115, 140].map((v, i) => (
           <rect key={i} x={30 + i * 25} y={150 - v} width="14" height={v}
                 fill="url(#eline)" rx="2"
@@ -419,10 +597,212 @@ function CaseStrip() {
   );
 }
 
+// ---------- Casos de Éxito ----------
+function CasoCard({ tag, title, desc, url }) {
+  const ref = useRef(null);
+  const onMove = (e) => {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    ref.current.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
+    ref.current.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
+  };
+
+  return (
+    <div ref={ref} className="card caso-card" onMouseMove={onMove}>
+      <span style={{
+        display: 'inline-block',
+        fontSize: 11,
+        color: 'var(--accent)',
+        border: '1px solid rgba(34,211,238,0.25)',
+        borderRadius: 999,
+        padding: '4px 12px',
+        marginBottom: 20,
+        fontFamily: 'JetBrains Mono, monospace',
+        letterSpacing: '0.04em',
+        background: 'rgba(34,211,238,0.04)',
+      }}>
+        {tag}
+      </span>
+      <h3 style={{ fontSize: 22, marginBottom: 10, color: 'var(--text)', letterSpacing: '-0.02em' }}>{title}</h3>
+      <p style={{ fontSize: 15, lineHeight: 1.6, marginBottom: 28, color: 'var(--text-dim)' }}>{desc}</p>
+      <a
+        href={url}
+        target={url !== '#' ? '_blank' : undefined}
+        rel={url !== '#' ? 'noopener noreferrer' : undefined}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 7,
+          fontSize: 13, color: 'var(--accent)', textDecoration: 'none', fontWeight: 600,
+          padding: '8px 16px',
+          border: '1px solid rgba(34,211,238,0.2)',
+          borderRadius: 8,
+          background: 'rgba(34,211,238,0.04)',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,211,238,0.1)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(34,211,238,0.04)'; e.currentTarget.style.borderColor = 'rgba(34,211,238,0.2)'; }}
+      >
+        Ver proyecto <Icon.Arrow size={12} />
+      </a>
+    </div>
+  );
+}
+
+function CasosList() {
+  const projects = [
+    {
+      tag: 'Refaccionaria & Logística',
+      title: 'Tracto Partes La Curva',
+      desc: 'Agente de ventas IA + inventario con 1,867 productos',
+      url: 'https://tractopartes-production.up.railway.app',
+    },
+    {
+      tag: 'Barbershop Luxury',
+      title: 'BR Studio',
+      desc: 'Sitio con sistema de reservas WhatsApp, estética dark marble/gold',
+      url: '#',
+    },
+    {
+      tag: 'Restaurante & Brunch',
+      title: 'Mamboreta Coffee',
+      desc: 'SPA interactivo con menú, reservaciones y animaciones',
+      url: '#',
+    },
+    {
+      tag: 'Bar & Bebidas',
+      title: 'Clamatos JJ',
+      desc: 'SPA con carrito, LocalStorage y datos reales de productos',
+      url: '#',
+    },
+  ];
+
+  return (
+    <section style={{ padding: '100px 0' }}>
+      <div className="container">
+        <div style={{ maxWidth: 720, marginBottom: 56 }}>
+          <div className="tag" style={{ marginBottom: 16 }}>
+            <span style={{ width: 6, height: 6, borderRadius: 2, background: 'var(--accent)' }} />
+            CASOS DE ÉXITO
+          </div>
+          <h2>Proyectos que hablan <span className="gradient-text">por sí solos.</span></h2>
+        </div>
+
+        <div className="casos-grid">
+          {projects.map((p, i) => (
+            <CasoCard key={i} {...p} />
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        .casos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .caso-card:hover {
+          border-color: var(--accent) !important;
+          box-shadow: 0 0 0 1px var(--accent), 0 0 40px -12px var(--accent-glow) !important;
+          transform: translateY(-4px) !important;
+        }
+        @media (max-width: 768px) { .casos-grid { grid-template-columns: 1fr; } }
+      `}</style>
+    </section>
+  );
+}
+
+// ---------- Testimoniales ----------
+function TestimonialCard({ initials, name, role, text }) {
+  const ref = useRef(null);
+  const onMove = (e) => {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    ref.current.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
+    ref.current.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
+  };
+
+  return (
+    <div ref={ref} className="card" onMouseMove={onMove} style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', gap: 3, marginBottom: 20 }}>
+        {[...Array(5)].map((_, i) => (
+          <span key={i} style={{ color: '#FBBF24', fontSize: 17, lineHeight: 1 }}>★</span>
+        ))}
+      </div>
+
+      <p style={{
+        fontSize: 15, lineHeight: 1.65, marginBottom: 28,
+        color: 'var(--text-dim)', fontStyle: 'italic', flex: 1,
+        borderLeft: '2px solid rgba(34,211,238,0.2)', paddingLeft: 16,
+      }}>
+        "{text}"
+      </p>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 'auto' }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 13, fontWeight: 700, color: '#02111f', flexShrink: 0,
+          boxShadow: '0 0 16px -4px var(--accent-glow)',
+        }}>
+          {initials}
+        </div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{name}</div>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>{role}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Testimoniales() {
+  const testimonials = [
+    {
+      initials: 'TC',
+      name: 'Carlos Mendoza',
+      role: 'Director, Tracto Partes La Curva',
+      text: 'El agente de WhatsApp cambió completamente cómo atendemos a nuestros clientes. Ventas 24/7 sin contratar personal extra.',
+    },
+    {
+      initials: 'BS',
+      name: 'Miguel Ríos',
+      role: 'Dueño, BR Studio Barbershop',
+      text: 'La página quedó exactamente como la imaginé. Profesional, rápida y con reservas automáticas por WhatsApp.',
+    },
+    {
+      initials: 'MC',
+      name: 'Ana Lucía Torres',
+      role: 'Gerente, Mamboreta Coffee',
+      text: 'Nuestros clientes ahora pueden ver el menú y reservar desde su celular. Axionix lo hizo simple y elegante.',
+    },
+  ];
+
+  return (
+    <section style={{ padding: '0 0 100px' }}>
+      <div className="container">
+        <div style={{ maxWidth: 720, marginBottom: 56 }}>
+          <div className="tag" style={{ marginBottom: 16 }}>
+            <span style={{ width: 6, height: 6, borderRadius: 2, background: 'var(--accent)' }} />
+            TESTIMONIALES
+          </div>
+          <h2>Lo que dicen <span className="gradient-text">nuestros clientes.</span></h2>
+        </div>
+
+        <div className="testimonials-grid">
+          {testimonials.map((t, i) => (
+            <TestimonialCard key={i} {...t} />
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr; } }
+      `}</style>
+    </section>
+  );
+}
+
 // ---------- Contact CTA ----------
 function ContactCTA() {
   return (
-    <section id="contacto" style={{ padding: '100px 0 80px' }}>
+    <section id="contacto" style={{ padding: '100px 0 0' }}>
       <div className="container">
         <div style={{
           position: 'relative',
@@ -536,22 +916,131 @@ function ContactCard() {
   );
 }
 
+// ---------- Footer (enhanced) ----------
 function Footer() {
+  const navLinks = [
+    { label: 'Plataforma', href: '#plataforma' },
+    { label: 'POS', href: 'POS.html' },
+    { label: 'Proyectos', href: 'Proyectos.html' },
+    { label: 'Contacto', href: '#contacto' },
+  ];
+
   return (
-    <footer style={{ marginTop: 80, paddingTop: 40, borderTop: '1px solid var(--line)' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div className="logo-mark" style={{ width: 24, height: 24 }} />
-          <span style={{ fontWeight: 600, fontSize: 14 }}>AXIONIX</span>
-          <span className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>© 2026 · Durango, MX</span>
+    <footer style={{ marginTop: 80 }}>
+      {/* Top cyan gradient border */}
+      <div style={{
+        height: 1,
+        background: 'linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent-2) 60%, var(--accent) 80%, transparent 100%)',
+        marginBottom: 52,
+      }} />
+
+      <div className="footer-columns">
+        {/* Left: brand */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div className="logo-mark" />
+            <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.01em' }}>AXIONIX</span>
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--text-faint)', maxWidth: 220, lineHeight: 1.6 }}>
+            Automatiza y escala tu negocio.
+          </p>
         </div>
-        <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'var(--text-dim)' }}>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacidad</a>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Términos</a>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Estado</a>
-          <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Docs</a>
+
+        {/* Center: nav */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+            Navegación
+          </div>
+          {navLinks.map(l => (
+            <a key={l.label} href={l.href} style={{
+              fontSize: 14, color: 'var(--text-dim)', textDecoration: 'none',
+              transition: 'color 0.15s ease',
+            }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-dim)'}
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+
+        {/* Right: contact */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="mono" style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+            Contacto
+          </div>
+          <a href="https://wa.me/526182562935" target="_blank" rel="noopener" style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            fontSize: 14, color: '#25D366', textDecoration: 'none',
+            transition: 'opacity 0.15s ease',
+          }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            <Icon.Whatsapp size={15} />
+            +52 618 256 2935
+          </a>
+          <a href="mailto:contact@axionixmx.com" style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            fontSize: 14, color: 'var(--text-dim)', textDecoration: 'none',
+            transition: 'color 0.15s ease',
+          }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-dim)'}
+          >
+            <Icon.Mail size={15} />
+            contact@axionixmx.com
+          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-faint)' }}>
+            <Icon.MapPin size={14} />
+            <span className="mono">Durango, MX · 24/7</span>
+          </div>
         </div>
       </div>
+
+      {/* Bottom bar */}
+      <div style={{
+        borderTop: '1px solid var(--line)',
+        marginTop: 40,
+        paddingTop: 20,
+        paddingBottom: 32,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}>
+        <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+          © 2026 Axionix · Durango, MX. Todos los derechos reservados.
+        </span>
+        <div style={{ display: 'flex', gap: 20 }}>
+          {['Privacidad', 'Términos'].map(label => (
+            <a key={label} href="#" style={{
+              fontSize: 12, color: 'var(--text-faint)', textDecoration: 'none',
+              transition: 'color 0.15s ease',
+            }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-dim)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-faint)'}
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        .footer-columns {
+          display: grid;
+          grid-template-columns: 1.4fr 1fr 1.2fr;
+          gap: 48px;
+        }
+        @media (max-width: 768px) {
+          .footer-columns { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+          .footer-columns { grid-template-columns: 1fr; gap: 32px; }
+        }
+      `}</style>
     </footer>
   );
 }
@@ -578,7 +1067,10 @@ function App() {
       <Navbar />
       <Hero />
       <CaseStrip />
+      <BigStats />
       <Divisions />
+      <CasosList />
+      <Testimoniales />
       <ContactCTA />
 
       <TweaksPanel title="Tweaks">
