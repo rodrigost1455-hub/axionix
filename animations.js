@@ -544,24 +544,22 @@ window.addEventListener('scroll', () => {
 
 - BOOT
 - ────────────────────────────────────────────── */
-  onReady(() => {
+onReady(() => {
   initCursor();
   initOrbs();
   initScrollProgress();
   initNavbar();
   initVideoScanline();
   initCTAGlow();
-  initHeroHeadline();
-  initScrollReveal();
-  initMagneticButtons();
-  initCardTilt();
-  initCounters();
-  initMarqueePause();
 
-```
-console.log('%cAXIONIX animations v1.0 loaded ✓', 'color:#22d3ee;font-family:monospace;font-weight:bold;');
-```
-
+  setTimeout(() => {
+    initHeroHeadline();
+    initScrollReveal();
+    initMagneticButtons();
+    initCardTilt();
+    initCounters();
+    initMarqueePause();
+  }, 2500);
 });
 
 })();
