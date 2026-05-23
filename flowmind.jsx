@@ -1,323 +1,908 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Axionix FlowMind — Bienestar financiero con IA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<style>
-  :root {
-    /* Outer page (Axionix dark) */
-    --bg: #05070d;
-    --bg-elev: #0b1020;
-    --bg-card: #0d1426;
-    --line: rgba(148, 184, 255, 0.08);
-    --line-strong: rgba(148, 184, 255, 0.16);
-    --text: #e6ecff;
-    --text-dim: #8a96b3;
-    --text-faint: #53607d;
-    --accent: #22d3ee;
-    --accent-2: #3b82f6;
-    --accent-glow: rgba(34, 211, 238, 0.35);
-    /* FlowMind brand */
-    --fm: #a855f7;
-    --fm-2: #ec4899;
-    --fm-3: #6366f1;
-    --fm-glow: rgba(168, 85, 247, 0.45);
-    /* App interior */
-    --app-bg: #0a0612;
-    --app-card: #15131f;
-    --app-card-2: #1c1928;
-    --app-line: rgba(255, 255, 255, 0.06);
-    --app-text: #ffffff;
-    --app-text-dim: #9b94b3;
-    --app-text-faint: #6b6485;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-  body::before {
-    content: "";
-    position: fixed; inset: 0;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(168, 85, 247, 0.20), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 85% 30%, rgba(236, 72, 153, 0.12), transparent 70%),
-      radial-gradient(ellipse 50% 30% at 15% 60%, rgba(99, 102, 241, 0.10), transparent 70%),
-      linear-gradient(to bottom, #05070d, #05070d);
-    pointer-events: none;
-    z-index: 0;
-  }
-  body::after {
-    content: "";
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(168, 85, 247, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(168, 85, 247, 0.04) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-  #root { position: relative; z-index: 1; }
+const { useState, useRef, useEffect } = React;
 
-  .container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
-  @media (max-width: 640px) { .container { padding: 0 20px; } }
+// ---------- Icons ----------
+const I = {
+  Search: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>),
+  Bell: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>),
+  Eye: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>),
+  EyeOff: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>),
+  Home: (p) => (<svg viewBox="0 0 24 24" width={p.size||22} height={p.size||22} fill={p.fill||"none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>),
+  Stats: (p) => (<svg viewBox="0 0 24 24" width={p.size||22} height={p.size||22} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>),
+  Trophy: (p) => (<svg viewBox="0 0 24 24" width={p.size||22} height={p.size||22} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>),
+  User: (p) => (<svg viewBox="0 0 24 24" width={p.size||22} height={p.size||22} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>),
+  Plus: (p) => (<svg viewBox="0 0 24 24" width={p.size||22} height={p.size||22} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>),
+  Sparkles: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4L18 8.5 13.5 10 12 14l-1.5-4L6 8.5 10.5 7 12 3z"/><path d="M19 16l.7 1.8L21.5 18l-1.8.7L19 20.5l-.7-1.8L16.5 18l1.8-.7L19 16z"/></svg>),
+  Arrow: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>),
+  Whatsapp: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.5 0 .17 5.32.17 11.87a11.8 11.8 0 0 0 1.59 5.93L0 24l6.35-1.66a11.9 11.9 0 0 0 5.7 1.45h.01c6.55 0 11.88-5.33 11.88-11.88 0-3.17-1.24-6.15-3.42-8.43zM12.06 21.8h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.22-3.77.99 1.01-3.67-.24-.38a9.88 9.88 0 0 1-1.52-5.27c0-5.45 4.44-9.88 9.9-9.88 2.64 0 5.13 1.03 6.99 2.9a9.84 9.84 0 0 1 2.9 6.99c-.01 5.45-4.44 9.88-9.86 9.88zm5.42-7.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.87 1.22 3.07c.15.2 2.1 3.21 5.08 4.5.71.3 1.26.48 1.69.62.71.23 1.36.19 1.87.12.57-.08 1.76-.72 2-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>),
+  Mail: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>),
+  Lock: (p) => (<svg viewBox="0 0 24 24" width={p.size||13} height={p.size||13} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>),
+  Heart: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>),
+  Brain: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a4.5 4.5 0 0 0-4.5 4.5v0A4.5 4.5 0 0 0 3 11v0a4.5 4.5 0 0 0 4.5 4.5v0A4.5 4.5 0 0 0 12 20"/><path d="M12 2a4.5 4.5 0 0 1 4.5 4.5v0A4.5 4.5 0 0 1 21 11v0a4.5 4.5 0 0 1-4.5 4.5v0A4.5 4.5 0 0 1 12 20"/></svg>),
+  Target: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>),
+  Flame: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="#fb923c" stroke="#f97316" strokeWidth="1"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>),
+  Cart: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>),
+  Coffee: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>),
+  Car: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 17h-2v-6.5l1.5-4.5h15l1.5 4.5v6.5h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/></svg>),
+  Plane: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>),
+  Plus2: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>),
+  Apple: (p) => (<svg viewBox="0 0 24 24" width={p.size||22} height={p.size||22} fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09M12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25"/></svg>),
+  Play: (p) => (<svg viewBox="0 0 512 512" width={p.size||22} height={p.size||22} fill="currentColor"><path d="M325.3 234.3 104.1 13l280.8 161.2-59.6 60.1zM47 0c-3.5 0-7 .5-10.4 1.6L256 256 36.6 510.4C40 511.5 43.5 512 47 512c8.4 0 16.7-2.9 24.2-8.3L302.6 369.3 96.7 142.7l4-3.8 224.7 217.4 154.5-89.4c20.5-11.8 20.5-37.9 0-49.7L262.8 95.4l-191.6-87.1C63.7 2.9 55.4 0 47 0z"/></svg>),
+  Send: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>),
+  TrendDown: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>),
+  TrendUp: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>),
+  Settings: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>),
+  Chevron: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>),
+};
 
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s ease; text-decoration: none; border: 1px solid transparent; white-space: nowrap; }
-  .btn-primary { background: linear-gradient(135deg, var(--fm-3), var(--fm), var(--fm-2)); color: white; font-weight: 600; box-shadow: 0 0 0 1px rgba(168,85,247,0.4), 0 8px 24px -8px var(--fm-glow); }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px var(--fm), 0 12px 32px -8px var(--fm-glow); }
-  .btn-outline { background: rgba(255,255,255,0.02); color: var(--text); border-color: var(--line-strong); }
-  .btn-outline:hover { background: rgba(168,85,247,0.08); border-color: var(--fm); color: var(--fm); }
-  .btn-glow { background: rgba(10,18,36,0.6); color: var(--text); border: 1px solid var(--fm); box-shadow: 0 0 0 1px var(--fm), 0 0 20px -4px var(--fm-glow); }
-  .btn-ghost { background: transparent; color: var(--text-dim); }
-  .btn-ghost:hover { color: var(--text); }
+// ---------- Navbar ----------
+function Navbar() {
+  return (
+    <nav className="nav">
+      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
+        <a href="index.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'var(--text)' }}>
+          <div className="logo-mark" />
+          <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.01em' }}>AXIONIX</span>
+          <span className="mono" style={{ fontSize: 10, color: 'var(--fm)', border: '1px solid rgba(168,85,247,0.4)', padding: '2px 6px', borderRadius: 4, marginLeft: 4, background: 'rgba(168,85,247,0.08)' }}>FLOWMIND</span>
+        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="hide-mobile">
+          <a href="index.html" className="nav-link">Plataforma</a>
+          <a href="POS.html" className="nav-link">POS</a>
+          <a href="#" className="nav-link active">FlowMind</a>
+          <a href="Proyectos.html" className="nav-link">Proyectos</a>
+          <a href="#contacto" className="nav-link">Contacto</a>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <a href="https://wa.me/526182562935" target="_blank" rel="noopener" className="btn btn-ghost" style={{ color: '#25D366', padding: '8px 12px', fontSize: 13 }}>
+            <I.Whatsapp size={15} />
+            <span className="mono hide-mobile">+52 618 256 2935</span>
+          </a>
+          <a href="#" className="btn btn-glow" style={{ padding: '9px 18px', fontSize: 13 }}>
+            <I.Lock size={13} /> Iniciar Sesión
+          </a>
+        </div>
+      </div>
+      <style>{`@media (max-width: 880px) { .hide-mobile { display: none !important; } }`}</style>
+    </nav>
+  );
+}
 
-  .tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: rgba(168, 85, 247, 0.06); font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
+// ---------- Status bar (inside phone) ----------
+function StatusBar() {
+  return (
+    <div className="phone-status">
+      <span>9:41</span>
+      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {/* Signal */}
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="white"><rect x="0" y="7" width="3" height="4" rx="0.5"/><rect x="4.5" y="5" width="3" height="6" rx="0.5"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.5"/><rect x="13.5" y="0" width="3" height="11" rx="0.5"/></svg>
+        {/* Wifi */}
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M8 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill="white"/><path d="M3.5 6.5a6 6 0 0 1 9 0" stroke="white" strokeWidth="1.8" strokeLinecap="round"/><path d="M0.5 3.5a10 10 0 0 1 15 0" stroke="white" strokeWidth="1.8" strokeLinecap="round"/></svg>
+        {/* Battery */}
+        <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
+          <rect x="0.5" y="0.5" width="22" height="11" rx="2.5" stroke="white" strokeOpacity="0.8"/>
+          <rect x="2" y="2" width="19" height="8" rx="1.5" fill="white"/>
+          <rect x="24" y="3.5" width="2" height="5" rx="1" fill="white" fillOpacity="0.5"/>
+        </svg>
+      </span>
+    </div>
+  );
+}
 
-  .nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(5,7,13,0.7); border-bottom: 1px solid var(--line); }
-  .nav-link { color: var(--text-dim); font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: 8px; text-decoration: none; transition: all 0.15s ease; }
-  .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.03); }
-  .nav-link.active { color: var(--fm); }
+// ---------- Health Score Ring ----------
+function HealthRing({ score = 96, size = 92, stroke = 8 }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const pct = Math.max(0, Math.min(100, score)) / 100;
+  const dash = c * pct;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
+      <defs>
+        <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#06b6d4" />
+          <stop offset="50%" stopColor="#a855f7" />
+          <stop offset="100%" stopColor="#ec4899" />
+        </linearGradient>
+      </defs>
+      <circle cx={size/2} cy={size/2} r={r} stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} fill="none" />
+      <circle
+        cx={size/2} cy={size/2} r={r}
+        stroke="url(#ring-grad)" strokeWidth={stroke}
+        fill="none" strokeLinecap="round"
+        strokeDasharray={`${dash} ${c - dash}`}
+        style={{ transition: 'stroke-dasharray 1s ease-out' }}
+      />
+    </svg>
+  );
+}
 
-  .logo-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); position: relative; box-shadow: 0 0 16px -2px var(--accent-glow); }
-  .logo-mark::after { content: ""; position: absolute; inset: 6px; background: var(--bg); border-radius: 3px; clip-path: polygon(0 100%, 50% 0, 100% 100%, 65% 100%, 50% 60%, 35% 100%); }
+// ---------- HOME SCREEN ----------
+function HomeScreen({ hideBalance, setHideBalance, onAddClick }) {
+  const [insightIdx, setInsightIdx] = useState(0);
+  const insights = [
+    { title: 'Insights appear once you\'ve logged a few transactions.', kind: 'empty' },
+    { title: 'You\'re on track to save 23% more this month.', sub: 'Based on your last 30 days of spending', kind: 'positive' },
+    { title: 'Eating out is 18% above your usual weekly avg.', sub: 'Consider cooking at home 2 more times this week', kind: 'warn' },
+  ];
+  const insight = insights[insightIdx];
 
-  h1, h2, h3, h4 { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; margin: 0; }
-  h1 { font-size: clamp(40px, 5.5vw, 64px); font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
-  h2 { font-size: clamp(28px, 3.5vw, 42px); font-weight: 600; line-height: 1.1; letter-spacing: -0.03em; }
-  h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
-  p { margin: 0; line-height: 1.55; color: var(--text-dim); }
+  return (
+    <div className="app" style={{ animation: 'screen-in 0.3s both' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+        <div className="avatar-grad">A</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 11, color: 'var(--app-text-dim)', fontWeight: 500 }}>Good evening</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: 'white', marginTop: 1, letterSpacing: '-0.01em' }}>Hey, Rodrigo</div>
+        </div>
+        <div className="icon-btn"><I.Search size={16} /></div>
+        <div className="icon-btn">
+          <I.Bell size={16} />
+          <span style={{ position: 'absolute', top: 7, right: 7, width: 8, height: 8, borderRadius: '50%', background: '#ec4899', border: '2px solid #15131f' }} />
+        </div>
+      </div>
 
-  .gradient-text { background: linear-gradient(135deg, var(--fm-3) 0%, #fff 50%, var(--fm-2) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      {/* Balance card */}
+      <div className="balance-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, position: 'relative', zIndex: 1 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600 }}>
+            <span style={{ width: 18, height: 18, borderRadius: 5, background: '#fb923c', display: 'inline-block', boxShadow: '0 0 0 2px rgba(255,255,255,0.18)' }} />
+            Main · ·· 4421
+          </span>
+          <button onClick={() => setHideBalance(!hideBalance)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: 4, opacity: 0.85 }}>
+            {hideBalance ? <I.EyeOff size={16} /> : <I.Eye size={16} />}
+          </button>
+        </div>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.78)', marginBottom: 2, position: 'relative', zIndex: 1 }}>REMAINING THIS WEEK</div>
+        <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 14, position: 'relative', zIndex: 1, lineHeight: 1 }}>
+          {hideBalance ? '$••••.••' : (<>$1,700<span style={{ fontSize: 20, opacity: 0.7, fontWeight: 700 }}>.00</span></>)}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, position: 'relative', zIndex: 1 }}>
+          {[
+            { label: 'Income', val: '$0' },
+            { label: 'Saved', val: '$1,700' },
+            { label: 'Spent', val: '$0' },
+          ].map(s => (
+            <div key={s.label}>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: 500, marginBottom: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em' }}>{hideBalance ? '$•••' : s.val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-  @keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.6); } 50% { box-shadow: 0 0 0 6px rgba(168,85,247,0); } }
-  .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fm); animation: pulse-dot 2s infinite; }
+      {/* Health Score + Streak */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14 }}>
+        <div className="stat-card">
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--app-text-dim)', marginBottom: 8 }}>HEALTH SCORE</div>
+          <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+            <HealthRing score={96} size={92} stroke={8} />
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1 }}>96</span>
+                <span style={{ fontSize: 9, color: 'var(--app-text-dim)', fontWeight: 600 }}>/100</span>
+              </div>
+              <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.15em', color: '#a855f7', marginTop: 2 }}>THRIVING</div>
+            </div>
+          </div>
+        </div>
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  .fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-  @keyframes screen-in { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        <div className="stat-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: 'var(--app-text-dim)' }}>STREAK</span>
+            <I.Flame size={16} />
+          </div>
+          <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.03em', color: '#f97316', lineHeight: 1 }}>0</div>
+          <div style={{ fontSize: 11, color: 'var(--app-text-dim)', marginTop: 4, fontWeight: 500 }}>days under budget</div>
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--app-line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--app-text-faint)' }}>Lv 1</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--app-text-faint)', fontFamily: 'JetBrains Mono, monospace' }}>0/1000 XP</span>
+          </div>
+        </div>
+      </div>
 
-  /* Feature card */
-  .feat-card { background: linear-gradient(180deg, rgba(28,15,40,0.6), rgba(10,15,28,0.6)); border: 1px solid var(--line); border-radius: 16px; padding: 28px; transition: all 0.25s ease; position: relative; overflow: hidden; }
-  .feat-card:hover { border-color: rgba(168,85,247,0.25); transform: translateY(-2px); }
-  .feat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+      {/* AI Insights */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 22, marginBottom: 10 }}>
+        <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em' }}>AI insights</span>
+        <button
+          onClick={() => setInsightIdx((insightIdx + 1) % insights.length)}
+          style={{ background: 'transparent', border: 'none', color: '#a855f7', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: 0 }}
+        >
+          Personalized
+        </button>
+      </div>
+      <div className="ai-card">
+        <div className="ai-icon">
+          <I.Sparkles size={14} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {insight.kind === 'empty' ? (
+            <span style={{ fontSize: 13, color: 'var(--app-text-dim)', lineHeight: 1.4 }}>{insight.title}</span>
+          ) : (
+            <>
+              <div style={{ fontSize: 13, color: 'white', fontWeight: 600, lineHeight: 1.35 }}>{insight.title}</div>
+              {insight.sub && <div style={{ fontSize: 11, color: 'var(--app-text-dim)', marginTop: 3 }}>{insight.sub}</div>}
+            </>
+          )}
+        </div>
+      </div>
 
-  /* WhatsApp btn */
-  .wa-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; background: linear-gradient(135deg, #25D366, #128C7E); color: white; font-weight: 600; font-size: 15px; border-radius: 12px; text-decoration: none; box-shadow: 0 10px 30px -10px rgba(37, 211, 102, 0.6); transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.1); }
-  .wa-btn:hover { transform: translateY(-1px); }
+      {/* This week */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 22, marginBottom: 10 }}>
+        <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em' }}>This week</span>
+        <span style={{ fontSize: 12, color: 'var(--app-text-dim)', fontFamily: 'JetBrains Mono, monospace' }}>$0 / $0</span>
+      </div>
+      <div className="stat-card" style={{ padding: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 11, color: 'var(--app-text-dim)', fontWeight: 500 }}>Daily average</div>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginTop: 2 }}>$0</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+            <span style={{ fontSize: 10, color: 'var(--app-text-faint)' }}>$0</span>
+            <span style={{ fontSize: 10, color: 'var(--app-text-faint)' }}>$—</span>
+          </div>
+        </div>
+        {/* Bar chart placeholder */}
+        <div style={{ display: 'flex', gap: 4, height: 36, alignItems: 'flex-end' }}>
+          {['M','T','W','T','F','S','S'].map((d, i) => (
+            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{
+                width: '100%', borderRadius: 3,
+                background: 'rgba(255,255,255,0.05)',
+                height: 4
+              }} />
+              <span style={{ fontSize: 9, color: 'var(--app-text-faint)', fontWeight: 500 }}>{d}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-  /* Store badge buttons */
-  .store-btn {
-    display: inline-flex; align-items: center; gap: 12px;
-    padding: 10px 18px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
-    color: var(--text);
-    text-decoration: none;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(8px);
-  }
-  .store-btn:hover { background: rgba(168,85,247,0.10); border-color: var(--fm); transform: translateY(-1px); }
-  .store-btn-icon { width: 28px; height: 28px; flex-shrink: 0; }
-  .store-btn-text { display: flex; flex-direction: column; line-height: 1.2; }
-  .store-btn-text small { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
-  .store-btn-text strong { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+      {/* Spacer */}
+      <div style={{ height: 10 }} />
+    </div>
+  );
+}
 
-  /* iPhone bezel */
-  .phone {
-    position: relative;
-    width: 340px; height: 700px;
-    background: #1a1a1f;
-    border-radius: 50px;
-    padding: 12px;
-    box-shadow:
-      0 0 0 2px #2a2a30,
-      0 0 0 4px #0a0a0e,
-      0 30px 100px -20px rgba(168, 85, 247, 0.35),
-      0 60px 120px -30px rgba(0, 0, 0, 0.8);
-    z-index: 1;
-  }
-  .phone::before {
-    /* edge highlight */
-    content: "";
-    position: absolute; inset: 0;
-    border-radius: 50px;
-    background: linear-gradient(160deg, rgba(255,255,255,0.10), transparent 30%, transparent 70%, rgba(255,255,255,0.06));
-    pointer-events: none;
-  }
-  .phone-screen {
-    width: 100%; height: 100%;
-    background: var(--app-bg);
-    border-radius: 38px;
-    overflow: hidden;
-    position: relative;
-  }
-  .phone-island {
-    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-    width: 120px; height: 32px; background: #000;
-    border-radius: 20px; z-index: 30;
-  }
-  .phone-status {
-    position: absolute; top: 0; left: 0; right: 0;
-    padding: 16px 28px 0; height: 50px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px;
-    color: white; z-index: 25;
-    pointer-events: none;
-  }
+// ---------- STATS SCREEN ----------
+function StatsScreen() {
+  const [period, setPeriod] = useState('week');
+  const periods = [{id:'week',l:'Week'},{id:'month',l:'Month'},{id:'year',l:'Year'}];
+  const categories = [
+    { name: 'Food & Dining', val: 420, color: '#a855f7', icon: <I.Coffee size={12} />, pct: 0.32 },
+    { name: 'Shopping',       val: 285, color: '#ec4899', icon: <I.Cart size={12} />, pct: 0.22 },
+    { name: 'Transport',      val: 195, color: '#06b6d4', icon: <I.Car size={12} />, pct: 0.15 },
+    { name: 'Subscriptions',  val: 150, color: '#6366f1', icon: <I.Sparkles size={12} />, pct: 0.11 },
+    { name: 'Other',          val: 260, color: '#64748b', icon: <I.Plus2 size={12} />, pct: 0.20 },
+  ];
+  const total = categories.reduce((s, c) => s + c.val, 0);
 
-  /* App scroll container */
-  .app {
-    position: absolute; inset: 0;
-    padding: 58px 18px 84px;
-    overflow-y: auto;
-    color: var(--app-text);
-    font-family: 'Inter', sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  .app::-webkit-scrollbar { display: none; }
+  // Donut math
+  let acc = 0;
+  const segs = categories.map(c => {
+    const start = acc;
+    acc += c.pct * 360;
+    return { ...c, start, end: acc };
+  });
+  const r = 36;
+  const cx = 60, cy = 60;
+  const arcPath = (start, end) => {
+    const a1 = (start - 90) * Math.PI / 180;
+    const a2 = (end   - 90) * Math.PI / 180;
+    const x1 = cx + r * Math.cos(a1);
+    const y1 = cy + r * Math.sin(a1);
+    const x2 = cx + r * Math.cos(a2);
+    const y2 = cy + r * Math.sin(a2);
+    const large = (end - start) > 180 ? 1 : 0;
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
+  };
 
-  /* Avatar gradient */
-  .avatar-grad {
-    width: 42px; height: 42px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--fm), var(--fm-2));
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-weight: 700; font-size: 17px;
-    box-shadow: 0 8px 20px -6px rgba(236,72,153,0.5);
-  }
+  return (
+    <div className="app" style={{ animation: 'screen-in 0.3s both' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 11, color: 'var(--app-text-dim)', fontWeight: 500 }}>Spending overview</div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 2 }}>Statistics</h2>
+        </div>
+        <div className="icon-btn"><I.Settings size={16} /></div>
+      </div>
 
-  .icon-btn {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--app-text); cursor: pointer;
-    transition: all 0.15s ease;
-    position: relative;
-  }
-  .icon-btn:hover { background: rgba(168,85,247,0.10); border-color: rgba(168,85,247,0.3); }
+      {/* Period selector */}
+      <div style={{ display: 'flex', gap: 6, padding: 4, background: 'var(--app-card)', borderRadius: 12, marginBottom: 16, border: '1px solid var(--app-line)' }}>
+        {periods.map(p => (
+          <button key={p.id} onClick={() => setPeriod(p.id)} style={{
+            flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
+            background: period === p.id ? 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)' : 'transparent',
+            color: period === p.id ? 'white' : 'var(--app-text-dim)',
+            fontWeight: 600, fontSize: 12, fontFamily: 'inherit', letterSpacing: '-0.01em',
+            transition: 'all 0.15s ease'
+          }}>{p.l}</button>
+        ))}
+      </div>
 
-  .balance-card {
-    background: linear-gradient(135deg, #5b6cf6 0%, #a855f7 50%, #ec4899 100%);
-    border-radius: 22px;
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-    color: white;
-    box-shadow: 0 18px 40px -16px rgba(168, 85, 247, 0.55);
-  }
-  .balance-card::before {
-    content: "";
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 160px; height: 160px;
-    background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 60%);
-    pointer-events: none;
-  }
-  .balance-card::after {
-    content: "";
-    position: absolute;
-    bottom: -40px; left: -20px;
-    width: 140px; height: 140px;
-    background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 60%);
-    pointer-events: none;
-  }
+      {/* Donut + total */}
+      <div className="stat-card" style={{ padding: 16 }}>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <svg width="120" height="120" viewBox="0 0 120 120" style={{ flexShrink: 0 }}>
+            {segs.map((s, i) => (
+              <path key={i} d={arcPath(s.start, s.end - 2)} stroke={s.color} strokeWidth="14" fill="none" strokeLinecap="butt" />
+            ))}
+            <text x="60" y="56" textAnchor="middle" fill="var(--app-text-dim)" fontSize="9" fontWeight="600" letterSpacing="0.1em">TOTAL</text>
+            <text x="60" y="74" textAnchor="middle" fill="white" fontSize="17" fontWeight="800" letterSpacing="-0.02em">${total}</text>
+          </svg>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {segs.slice(0, 4).map(s => (
+              <div key={s.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: 'var(--app-text-dim)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'white' }}>{Math.round(s.pct * 100)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-  .stat-card {
-    background: var(--app-card);
-    border: 1px solid var(--app-line);
-    border-radius: 18px;
-    padding: 14px;
-  }
+      {/* Predicted change */}
+      <div className="stat-card" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <I.TrendDown size={16} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 600 }}>AI predicts <span style={{ color: '#4ade80' }}>↓ 14%</span> next week</div>
+          <div style={{ fontSize: 10, color: 'var(--app-text-dim)', marginTop: 2 }}>Based on patterns from last 6 weeks</div>
+        </div>
+      </div>
 
-  .ai-card {
-    background: var(--app-card);
-    border: 1px solid var(--app-line);
-    border-radius: 16px;
-    padding: 14px;
-    display: flex; gap: 12px; align-items: center;
-  }
+      {/* Categories list */}
+      <div style={{ marginTop: 18 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--app-text-dim)', letterSpacing: '0.06em', marginBottom: 8, textTransform: 'uppercase' }}>Top categories</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {categories.map(c => (
+            <div key={c.name} className="stat-card" style={{ padding: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: `${c.color}25`, color: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {c.icon}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{c.name}</div>
+                <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginTop: 5, overflow: 'hidden' }}>
+                  <div style={{ width: `${c.pct * 100}%`, height: '100%', background: c.color, borderRadius: 2 }} />
+                </div>
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace' }}>${c.val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-  .ai-icon {
-    width: 30px; height: 30px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, var(--fm), var(--fm-2));
-    display: flex; align-items: center; justify-content: center;
-    color: white;
-    flex-shrink: 0;
-  }
+      <div style={{ height: 10 }} />
+    </div>
+  );
+}
 
-  /* Bottom tab bar */
-  .tab-bar {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 84px;
-    padding: 8px 14px 22px;
-    background: rgba(10,6,18,0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255,255,255,0.04);
-    display: flex; align-items: flex-start; justify-content: space-between;
-    z-index: 20;
-  }
-  .tab-item {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    gap: 4px; padding: 8px 4px;
-    cursor: pointer; transition: color 0.15s ease;
-    color: var(--app-text-faint);
-    font-size: 10px; font-weight: 500;
-  }
-  .tab-item.active { color: var(--fm); }
-  .tab-item:hover { color: var(--app-text-dim); }
-  .tab-item.active:hover { color: var(--fm); }
-  .tab-fab {
-    width: 50px; height: 50px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--fm-3), var(--fm), var(--fm-2));
-    display: flex; align-items: center; justify-content: center;
-    color: white; cursor: pointer;
-    box-shadow: 0 8px 24px -4px rgba(168,85,247,0.6), 0 0 0 4px rgba(168,85,247,0.10);
-    transition: transform 0.15s ease;
-    margin-top: -14px;
-  }
-  .tab-fab:hover { transform: scale(1.06); }
-  .tab-indicator {
-    position: absolute; top: 0; width: 32px; height: 3px;
-    background: var(--fm); border-radius: 0 0 4px 4px;
-    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+// ---------- GOALS SCREEN ----------
+function GoalsScreen() {
+  const goals = [
+    { name: 'Emergency fund',  saved: 3200, target: 5000, color: '#a855f7', icon: <I.Heart size={14} /> },
+    { name: 'Vacation · Cancún',saved: 850,  target: 3500, color: '#ec4899', icon: <I.Plane size={14} /> },
+    { name: 'New laptop',      saved: 420,  target: 2200, color: '#6366f1', icon: <I.Sparkles size={14} /> },
+    { name: 'Car maintenance', saved: 180,  target: 600,  color: '#06b6d4', icon: <I.Car size={14} /> },
+  ];
 
-  /* Generic chip */
-  .chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 999px;
-    font-size: 11px; font-weight: 500;
-  }
+  return (
+    <div className="app" style={{ animation: 'screen-in 0.3s both' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+        <div>
+          <div style={{ fontSize: 11, color: 'var(--app-text-dim)', fontWeight: 500 }}>Your savings</div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 2 }}>Goals</h2>
+        </div>
+        <button style={{
+          padding: '8px 14px', borderRadius: 10,
+          background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
+          color: 'white', border: 'none', cursor: 'pointer',
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          fontSize: 12, fontWeight: 600, fontFamily: 'inherit'
+        }}>
+          <I.Plus2 size={12} /> New goal
+        </button>
+      </div>
 
-  /* Marketing badges */
-  .marketing-list { display: flex; flex-direction: column; gap: 16px; }
-  .marketing-item { display: flex; gap: 14px; align-items: flex-start; }
-  .marketing-num {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.12));
-    border: 1px solid rgba(168,85,247,0.25);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--fm); font-weight: 700; font-size: 13px;
-    flex-shrink: 0;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .marketing-content h4 { font-size: 17px; margin-bottom: 4px; color: var(--text); }
-  .marketing-content p { font-size: 14px; }
-</style>
-</head>
-<body>
-<div id="root"></div>
-<script type="text/babel" src="flowmind.jsx"></script>
-</body>
-</html>
+      {/* Hero progress */}
+      <div className="balance-card" style={{ background: 'linear-gradient(135deg, #a855f7, #ec4899)' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', opacity: 0.85, position: 'relative', zIndex: 1 }}>TOTAL SAVED</div>
+        <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4, marginBottom: 14, position: 'relative', zIndex: 1, lineHeight: 1 }}>
+          $4,650<span style={{ fontSize: 18, opacity: 0.7 }}>/$11,300</span>
+        </div>
+        <div style={{ height: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 999, overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+          <div style={{ width: '41%', height: '100%', background: 'white', borderRadius: 999, boxShadow: '0 0 12px rgba(255,255,255,0.5)' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, fontWeight: 600, position: 'relative', zIndex: 1, opacity: 0.9 }}>
+          <span>41% completed</span>
+          <span>4 active goals</span>
+        </div>
+      </div>
+
+      {/* Goal cards */}
+      <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {goals.map(g => {
+          const pct = (g.saved / g.target) * 100;
+          return (
+            <div key={g.name} className="stat-card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 32, height: 32, borderRadius: 9, background: `${g.color}22`, color: g.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {g.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>{g.name}</div>
+                  <div style={{ fontSize: 10, color: 'var(--app-text-dim)', marginTop: 1, fontFamily: 'JetBrains Mono, monospace' }}>
+                    ${g.saved} <span style={{ opacity: 0.6 }}>of ${g.target}</span>
+                  </div>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: g.color, fontFamily: 'JetBrains Mono, monospace' }}>{Math.round(pct)}%</span>
+              </div>
+              <div style={{ height: 6, background: 'rgba(255,255,255,0.05)', borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ width: `${pct}%`, height: '100%', background: `linear-gradient(90deg, ${g.color}, ${g.color}cc)`, borderRadius: 3 }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ height: 10 }} />
+    </div>
+  );
+}
+
+// ---------- YOU SCREEN ----------
+function YouScreen() {
+  const items = [
+    { label: 'Account & security', icon: <I.Lock size={14} /> },
+    { label: 'Connected banks',    icon: <I.Target size={14} /> },
+    { label: 'Notifications',      icon: <I.Bell size={14} /> },
+    { label: 'AI personalization', icon: <I.Brain size={14} /> },
+    { label: 'Help & support',     icon: <I.Sparkles size={14} /> },
+  ];
+  return (
+    <div className="app" style={{ animation: 'screen-in 0.3s both' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+        <h2 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em' }}>You</h2>
+        <div className="icon-btn"><I.Settings size={16} /></div>
+      </div>
+
+      {/* Profile */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '8px 0 18px' }}>
+        <div className="avatar-grad" style={{ width: 76, height: 76, borderRadius: 22, fontSize: 30, boxShadow: '0 16px 40px -10px rgba(236,72,153,0.5)' }}>A</div>
+        <div style={{ fontSize: 19, fontWeight: 800, marginTop: 12, letterSpacing: '-0.02em' }}>Rodrigo Alvarez</div>
+        <div style={{ fontSize: 12, color: 'var(--app-text-dim)', marginTop: 2 }}>rodrigo@axionixmx.com</div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <span className="chip" style={{ background: 'rgba(168,85,247,0.15)', color: '#a855f7', border: '1px solid rgba(168,85,247,0.3)' }}>
+            <I.Flame size={10} /> Lv 1 · 0 XP
+          </span>
+          <span className="chip" style={{ background: 'rgba(236,72,153,0.15)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.3)' }}>
+            <I.Heart size={10} /> 96/100
+          </span>
+        </div>
+      </div>
+
+      {/* Premium upsell */}
+      <div style={{
+        background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
+        borderRadius: 18, padding: 16, position: 'relative', overflow: 'hidden',
+        boxShadow: '0 12px 32px -10px rgba(168,85,247,0.5)'
+      }}>
+        <div style={{ position: 'absolute', top: -20, right: -20, width: 120, height: 120, background: 'radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%)' }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(255,255,255,0.18)', borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', marginBottom: 8 }}>
+            <I.Sparkles size={10} /> PREMIUM
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.01em', marginBottom: 4 }}>Unlock AI Coach</div>
+          <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 12, lineHeight: 1.4 }}>
+            Get personalized weekly plans, unlimited insights and goal forecasting.
+          </div>
+          <button style={{
+            padding: '8px 16px', borderRadius: 10,
+            background: 'white', color: '#0a0612',
+            border: 'none', cursor: 'pointer',
+            fontSize: 12, fontWeight: 700, fontFamily: 'inherit'
+          }}>
+            Try 7 days free →
+          </button>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {items.map(it => (
+          <div key={it.label} style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '12px 4px',
+            cursor: 'pointer',
+            borderBottom: '1px solid var(--app-line)'
+          }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(168,85,247,0.10)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {it.icon}
+            </div>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{it.label}</span>
+            <I.Chevron size={14} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ height: 10 }} />
+    </div>
+  );
+}
+
+// ---------- ADD MODAL ----------
+function AddSheet({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'absolute', inset: 0, zIndex: 40,
+        background: 'rgba(0,0,0,0.55)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'flex-end',
+        animation: 'fadeUp 0.2s both'
+      }}
+    >
+      <div onClick={e => e.stopPropagation()} style={{
+        width: '100%', background: 'var(--app-card)',
+        borderTopLeftRadius: 24, borderTopRightRadius: 24,
+        padding: '14px 18px 30px',
+        animation: 'fadeUp 0.3s both'
+      }}>
+        <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.18)', borderRadius: 2, margin: '0 auto 16px' }} />
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, letterSpacing: '-0.01em' }}>Quick add</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {[
+            { l: 'Expense',    c: '#ec4899', i: <I.TrendDown size={16} /> },
+            { l: 'Income',     c: '#22c55e', i: <I.TrendUp size={16} /> },
+            { l: 'New goal',   c: '#a855f7', i: <I.Target size={16} /> },
+            { l: 'AI assistant', c: '#6366f1', i: <I.Brain size={16} /> },
+          ].map(a => (
+            <button key={a.l} style={{
+              padding: '14px 12px', borderRadius: 14,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid var(--app-line)',
+              cursor: 'pointer', textAlign: 'left',
+              display: 'flex', flexDirection: 'column', gap: 8,
+              color: 'white', fontFamily: 'inherit'
+            }}>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: `${a.c}22`, color: a.c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {a.i}
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>{a.l}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Phone container ----------
+const TABS = [
+  { id: 'home',   label: 'Home',   Icon: I.Home },
+  { id: 'stats',  label: 'Stats',  Icon: I.Stats },
+  { id: 'goals',  label: 'Goals',  Icon: I.Trophy },
+  { id: 'you',    label: 'You',    Icon: I.User },
+];
+
+function PhoneDemo() {
+  const [tab, setTab] = useState('home');
+  const [hideBalance, setHideBalance] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+
+  return (
+    <div className="phone">
+      <div className="phone-screen">
+        <div className="phone-island" />
+        <StatusBar />
+
+        {tab === 'home'  && <HomeScreen hideBalance={hideBalance} setHideBalance={setHideBalance} onAddClick={() => setAddOpen(true)} />}
+        {tab === 'stats' && <StatsScreen />}
+        {tab === 'goals' && <GoalsScreen />}
+        {tab === 'you'   && <YouScreen />}
+
+        <AddSheet open={addOpen} onClose={() => setAddOpen(false)} />
+
+        {/* Tab bar */}
+        <div className="tab-bar">
+          <div className={`tab-item ${tab==='home'  ? 'active' : ''}`} onClick={() => setTab('home')}>
+            <I.Home size={20} />
+            <span>Home</span>
+          </div>
+          <div className={`tab-item ${tab==='stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
+            <I.Stats size={20} />
+            <span>Stats</span>
+          </div>
+          <div className="tab-fab" onClick={() => setAddOpen(true)}>
+            <I.Plus size={20} />
+          </div>
+          <div className={`tab-item ${tab==='goals' ? 'active' : ''}`} onClick={() => setTab('goals')}>
+            <I.Trophy size={20} />
+            <span>Goals</span>
+          </div>
+          <div className={`tab-item ${tab==='you'   ? 'active' : ''}`} onClick={() => setTab('you')}>
+            <I.User size={20} />
+            <span>You</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Hero / Mockup section ----------
+function HeroAndMockup() {
+  return (
+    <section style={{ paddingTop: 56, paddingBottom: 60 }}>
+      <div className="container">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 380px',
+          gap: 64,
+          alignItems: 'center'
+        }} className="hero-mockup-grid">
+          {/* Copy column */}
+          <div className="fade-up" style={{ maxWidth: 580 }}>
+            <div className="tag" style={{ marginBottom: 22 }}>
+              <span className="pulse-dot" />
+              <span>AXIONIX FLOWMIND · APP DE BIENESTAR FINANCIERO</span>
+            </div>
+            <h1 style={{ marginBottom: 22 }}>
+              Tu salud financiera, <span className="gradient-text">en tiempo real.</span>
+            </h1>
+            <p style={{ fontSize: 18, maxWidth: 520, marginBottom: 28 }}>
+              FlowMind es la app de bienestar financiero con inteligencia artificial que analiza tus gastos, predice tu comportamiento de consumo y te da un puntaje de salud financiera vivo — cada día, en tu bolsillo.
+            </p>
+
+            {/* Coming soon badges */}
+            <div style={{ marginBottom: 28 }}>
+              <div className="mono" style={{ fontSize: 10, color: 'var(--text-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
+                Próximamente
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <a href="#contacto" className="store-btn">
+                  <I.Apple size={26} />
+                  <div className="store-btn-text">
+                    <small>Próximamente en</small>
+                    <strong>App Store</strong>
+                  </div>
+                </a>
+                <a href="#contacto" className="store-btn">
+                  <I.Play size={22} />
+                  <div className="store-btn-text">
+                    <small>Próximamente en</small>
+                    <strong>Google Play</strong>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <a href="#contacto" className="btn btn-primary" style={{ padding: '14px 22px', fontSize: 15 }}>
+                Unirme a la lista de espera <I.Arrow size={15} />
+              </a>
+              <a href="#features" className="btn btn-outline" style={{ padding: '14px 22px', fontSize: 15 }}>
+                Conocer la app
+              </a>
+            </div>
+
+            <div style={{ display: 'flex', gap: 28, marginTop: 36, flexWrap: 'wrap' }}>
+              {[
+                { n: '96/100', l: 'Health Score promedio' },
+                { n: '< 1s', l: 'Insights en tiempo real' },
+                { n: 'iOS + Android', l: 'Multi-plataforma' },
+              ].map(s => (
+                <div key={s.l}>
+                  <div style={{ fontSize: 19, fontWeight: 700, letterSpacing: '-0.02em' }} className="mono">{s.n}</div>
+                  <div style={{ fontSize: 10.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 3 }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Phone column */}
+          <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }} className="phone-col">
+            {/* glow */}
+            <div style={{
+              position: 'absolute', inset: -60,
+              background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.25), transparent 60%)',
+              filter: 'blur(40px)', pointerEvents: 'none'
+            }} />
+            <PhoneDemo />
+          </div>
+        </div>
+      </div>
+      <style>{`
+        @media (max-width: 980px) {
+          .hero-mockup-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .phone-col { order: -1; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+// ---------- Features ----------
+function Features() {
+  const feats = [
+    {
+      icon: <I.Heart size={20} />,
+      title: 'Health Score con IA',
+      body: 'Un puntaje de 0 a 100 que mide tu bienestar financiero en tiempo real — ahorro, deuda, hábitos y proyección. Sube de nivel a medida que mejora.',
+      bullets: ['Cálculo continuo', 'Niveles y XP', 'Comparativa por edad'],
+      color: '#a855f7',
+    },
+    {
+      icon: <I.Brain size={20} />,
+      title: 'Predicción de Consumo',
+      body: 'Modelos entrenados con tu historial detectan picos antes de que ocurran. FlowMind te avisa cuando un gasto está por desviarse de tu patrón normal.',
+      bullets: ['Alertas anticipadas', 'Forecasting semanal', 'Detección de anomalías'],
+      color: '#ec4899',
+    },
+    {
+      icon: <I.Trophy size={20} />,
+      title: 'Streaks y Metas',
+      body: 'Convierte ahorrar en un hábito. Streaks diarios bajo presupuesto, metas con visualización clara y recompensas que celebran tu progreso.',
+      bullets: ['Streaks diarios', 'Metas multi-objetivo', 'Sistema de XP'],
+      color: '#6366f1',
+    },
+  ];
+
+  return (
+    <section id="features" style={{ padding: '40px 0 80px' }}>
+      <div className="container">
+        <div style={{ maxWidth: 720, marginBottom: 40 }}>
+          <div className="tag" style={{ marginBottom: 14 }}>
+            <span style={{ width: 6, height: 6, borderRadius: 2, background: 'var(--fm)' }} />
+            POR QUÉ FLOWMIND
+          </div>
+          <h2>Una app que entiende tus finanzas <span style={{ color: 'var(--text-dim)' }}>como tú nunca tendrías tiempo.</span></h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="feat-grid">
+          {feats.map((f, i) => (
+            <div key={i} className="feat-card">
+              <div className="feat-icon" style={{ background: `${f.color}14`, border: `1px solid ${f.color}40`, color: f.color }}>{f.icon}</div>
+              <h3 style={{ fontSize: 19, marginBottom: 10 }}>{f.title}</h3>
+              <p style={{ fontSize: 14, marginBottom: 20 }}>{f.body}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 16, borderTop: '1px dashed var(--line)' }}>
+                {f.bullets.map(b => (
+                  <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-dim)' }}>
+                    <span style={{ width: 14, height: 14, borderRadius: '50%', background: `${f.color}20`, color: f.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700 }}>✓</span>
+                    {b}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <style>{`@media (max-width: 860px) { .feat-grid { grid-template-columns: 1fr !important; } }`}</style>
+      </div>
+    </section>
+  );
+}
+
+// ---------- How it works ----------
+function HowItWorks() {
+  const steps = [
+    { n: '01', t: 'Conecta tus cuentas',   b: 'Vincula tus cuentas bancarias en segundos vía Open Banking. Lectura segura, cifrado de extremo a extremo.' },
+    { n: '02', t: 'Categorización con IA', b: 'FlowMind clasifica automáticamente cada movimiento — comida, transporte, suscripciones, gasto fantasma.' },
+    { n: '03', t: 'Insights personalizados',b: 'Recibes recomendaciones específicas para tu patrón de consumo, no consejos genéricos.' },
+    { n: '04', t: 'Mejora tu Health Score', b: 'Cumples retos, mantienes streaks, alcanzas metas — y tu puntaje sube en tiempo real.' },
+  ];
+  return (
+    <section style={{ padding: '20px 0 80px' }}>
+      <div className="container">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }} className="how-grid">
+          <div>
+            <div className="tag" style={{ marginBottom: 14 }}>
+              <span style={{ width: 6, height: 6, borderRadius: 2, background: 'var(--fm-2)' }} />
+              CÓMO FUNCIONA
+            </div>
+            <h2 style={{ marginBottom: 20 }}>De caos financiero a claridad <span className="gradient-text">en cuatro pasos.</span></h2>
+            <p style={{ fontSize: 16, marginBottom: 28 }}>
+              FlowMind no te pide presupuestos rígidos ni hojas de cálculo. Se conecta a tu vida tal como es y la mejora desde adentro.
+            </p>
+            <a href="#contacto" className="btn btn-outline" style={{ padding: '12px 18px', fontSize: 14 }}>
+              <I.Send size={14} /> Quiero acceso anticipado
+            </a>
+          </div>
+          <div className="marketing-list">
+            {steps.map(s => (
+              <div key={s.n} className="marketing-item">
+                <div className="marketing-num">{s.n}</div>
+                <div className="marketing-content">
+                  <h4>{s.t}</h4>
+                  <p>{s.b}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <style>{`@media (max-width: 900px) { .how-grid { grid-template-columns: 1fr !important; gap: 32px !important; } }`}</style>
+    </section>
+  );
+}
+
+// ---------- CTA / Footer ----------
+function ContactCTA() {
+  return (
+    <section id="contacto" style={{ padding: '40px 0 80px' }}>
+      <div className="container">
+        <div style={{ position: 'relative', borderRadius: 24, border: '1px solid var(--line-strong)', background: 'linear-gradient(135deg, rgba(99,102,241,0.10), rgba(168,85,247,0.08), rgba(236,72,153,0.05), rgba(13,20,38,0.8))', padding: '64px 56px', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(168,85,247,0.20), transparent 60%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: -100, left: -50, width: 300, height: 300, background: 'radial-gradient(circle, rgba(236,72,153,0.14), transparent 60%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'relative', textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
+            <div className="tag" style={{ marginBottom: 18, display: 'inline-flex' }}>
+              <span className="pulse-dot" />
+              LISTA DE ESPERA · BETA PRIVADA
+            </div>
+            <h2 style={{ marginBottom: 18 }}>
+              Sé de los primeros en transformar<br/>
+              <span className="gradient-text">tu salud financiera con IA.</span>
+            </h2>
+            <p style={{ fontSize: 17, maxWidth: 560, margin: '0 auto 32px' }}>
+              FlowMind se lanza pronto en App Store y Google Play. Únete a la lista de espera y obtén 3 meses Premium gratis al lanzamiento.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 22 }}>
+              <a className="wa-btn" href="https://wa.me/526182562935?text=Hola%2C%20quiero%20unirme%20a%20la%20lista%20de%20espera%20de%20FlowMind" target="_blank" rel="noopener">
+                <I.Whatsapp size={20} />
+                Unirme por WhatsApp
+              </a>
+              <a className="btn btn-outline" href="mailto:contact@axionixmx.com?subject=FlowMind%20Waitlist" style={{ padding: '14px 20px', fontSize: 15 }}>
+                <I.Mail size={15} /> contact@axionixmx.com
+              </a>
+            </div>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <div className="store-btn">
+                <I.Apple size={26} />
+                <div className="store-btn-text">
+                  <small>Próximamente en</small>
+                  <strong>App Store</strong>
+                </div>
+              </div>
+              <div className="store-btn">
+                <I.Play size={22} />
+                <div className="store-btn-text">
+                  <small>Próximamente en</small>
+                  <strong>Google Play</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer style={{ marginTop: 60, paddingTop: 32, borderTop: '1px solid var(--line)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="logo-mark" style={{ width: 24, height: 24 }} />
+            <span style={{ fontWeight: 600, fontSize: 14 }}>AXIONIX</span>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>© 2026 · Durango, MX</span>
+          </div>
+          <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'var(--text-dim)' }}>
+            <a href="index.html" style={{ color: 'inherit', textDecoration: 'none' }}>Plataforma</a>
+            <a href="POS.html" style={{ color: 'inherit', textDecoration: 'none' }}>POS</a>
+            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>FlowMind</a>
+            <a href="Proyectos.html" style={{ color: 'inherit', textDecoration: 'none' }}>Proyectos</a>
+          </div>
+        </footer>
+      </div>
+    </section>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <Navbar />
+      <HeroAndMockup />
+      <Features />
+      <HowItWorks />
+      <ContactCTA />
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);

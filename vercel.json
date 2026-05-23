@@ -1,0 +1,30 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.jsx",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Content-Type", "value": "text/javascript; charset=utf-8" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/pos",       "destination": "/POS.html" },
+    { "source": "/proyectos", "destination": "/Proyectos.html" },
+    { "source": "/flowmind",  "destination": "/FlowMind.html" }
+  ]
+}
