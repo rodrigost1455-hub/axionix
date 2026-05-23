@@ -1,412 +1,257 @@
-const { useState, useRef, useEffect } = React;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Axionix POINT · POS — Velocidad en el mostrador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #05070d;
+    --bg-elev: #0b1020;
+    --bg-card: #0d1426;
+    --line: rgba(148, 184, 255, 0.08);
+    --line-strong: rgba(148, 184, 255, 0.16);
+    --text: #e6ecff;
+    --text-dim: #8a96b3;
+    --text-faint: #53607d;
+    --accent: #22d3ee;
+    --accent-2: #3b82f6;
+    --accent-glow: rgba(34, 211, 238, 0.35);
+    --pos-bg: #f5f7fb;
+    --pos-card: #ffffff;
+    --pos-line: #e6eaf2;
+    --pos-text: #0f172a;
+    --pos-text-dim: #64748b;
+    --pos-accent: #6366f1;
+    --pos-green: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.16), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 15% 30%, rgba(34, 211, 238, 0.06), transparent 70%),
+      linear-gradient(to bottom, #05070d, #05070d);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(148, 184, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 184, 255, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  #root { position: relative; z-index: 1; }
 
-// ---------- Icons ----------
-const I = {
-  Search: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>),
-  Cart: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>),
-  Plus: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>),
-  Arrow: (p) => (<svg viewBox="0 0 24 24" width={p.size||14} height={p.size||14} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>),
-  Whatsapp: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.5 0 .17 5.32.17 11.87a11.8 11.8 0 0 0 1.59 5.93L0 24l6.35-1.66a11.9 11.9 0 0 0 5.7 1.45h.01c6.55 0 11.88-5.33 11.88-11.88 0-3.17-1.24-6.15-3.42-8.43zM12.06 21.8h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.22-3.77.99 1.01-3.67-.24-.38a9.88 9.88 0 0 1-1.52-5.27c0-5.45 4.44-9.88 9.9-9.88 2.64 0 5.13 1.03 6.99 2.9a9.84 9.84 0 0 1 2.9 6.99c-.01 5.45-4.44 9.88-9.86 9.88zm5.42-7.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.39-1.47-.88-.79-1.48-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.87 1.22 3.07c.15.2 2.1 3.21 5.08 4.5.71.3 1.26.48 1.69.62.71.23 1.36.19 1.87.12.57-.08 1.76-.72 2-1.41.25-.69.25-1.29.17-1.41-.07-.12-.27-.2-.57-.35z"/></svg>),
-  Mail: (p) => (<svg viewBox="0 0 24 24" width={p.size||16} height={p.size||16} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>),
-  Lock: (p) => (<svg viewBox="0 0 24 24" width={p.size||13} height={p.size||13} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>),
-  Bolt: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>),
-  Box: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>),
-  Chart: (p) => (<svg viewBox="0 0 24 24" width={p.size||18} height={p.size||18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>),
-};
+  .container { max-width: 1320px; margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 640px) { .container { padding: 0 20px; } }
 
-// Product illustrations as SVGs
-const P = {
-  Balatas: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="15" y="30" width="38" height="36" rx="4" fill="#1e293b"/><rect x="67" y="30" width="38" height="36" rx="4" fill="#1e293b"/><rect x="20" y="36" width="28" height="22" rx="2" fill="#475569"/><rect x="72" y="36" width="28" height="22" rx="2" fill="#475569"/><ellipse cx="60" cy="72" rx="42" ry="3" fill="#e2e8f0"/></svg>),
-  Filtro: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><ellipse cx="60" cy="30" rx="30" ry="8" fill="#e8d992"/><rect x="30" y="30" width="60" height="36" fill="#f0e3a0"/><ellipse cx="60" cy="66" rx="30" ry="8" fill="#d4c276"/><g stroke="#b8a55f" strokeWidth="1" opacity="0.5"><line x1="35" y1="32" x2="35" y2="64"/><line x1="42" y1="32" x2="42" y2="64"/><line x1="49" y1="32" x2="49" y2="64"/><line x1="56" y1="32" x2="56" y2="64"/><line x1="63" y1="32" x2="63" y2="64"/><line x1="70" y1="32" x2="70" y2="64"/><line x1="77" y1="32" x2="77" y2="64"/><line x1="84" y1="32" x2="84" y2="64"/></g><ellipse cx="60" cy="75" rx="35" ry="3" fill="#e2e8f0"/></svg>),
-  Aceite: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="45" y="12" width="30" height="8" rx="1" fill="#334155"/><path d="M42 20 L78 20 L78 72 Q78 76 74 76 L46 76 Q42 76 42 72 Z" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1"/><rect x="46" y="32" width="28" height="18" fill="#dc2626"/><text x="60" y="42" fontSize="7" fontWeight="700" fill="white" textAnchor="middle" fontFamily="Arial">DELO</text><text x="60" y="48" fontSize="5" fontWeight="600" fill="white" textAnchor="middle" fontFamily="Arial">15W-40</text><ellipse cx="60" cy="80" rx="25" ry="2" fill="#e2e8f0"/></svg>),
-  Disco: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><circle cx="60" cy="45" r="34" fill="#64748b"/><circle cx="60" cy="45" r="30" fill="#94a3b8"/><circle cx="60" cy="45" r="14" fill="#475569"/><circle cx="60" cy="45" r="4" fill="#1e293b"/><g fill="#334155"><circle cx="60" cy="33" r="1.5"/><circle cx="72" cy="45" r="1.5"/><circle cx="60" cy="57" r="1.5"/><circle cx="48" cy="45" r="1.5"/></g><ellipse cx="60" cy="82" rx="38" ry="2" fill="#e2e8f0"/></svg>),
-  Bateria: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="32" y="18" width="14" height="5" fill="#dc2626"/><rect x="74" y="18" width="14" height="5" fill="#1e293b"/><rect x="28" y="22" width="64" height="50" rx="3" fill="#1e293b"/><rect x="32" y="28" width="56" height="40" rx="2" fill="#ef4444"/><text x="60" y="48" fontSize="8" fontWeight="700" fill="white" textAnchor="middle" fontFamily="Arial">LTH</text><text x="60" y="58" fontSize="5" fill="white" textAnchor="middle" fontFamily="Arial">31T-1000CCA</text><ellipse cx="60" cy="78" rx="35" ry="2" fill="#e2e8f0"/></svg>),
-  FiltroComb: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="42" y="18" width="36" height="58" rx="2" fill="#ea580c"/><rect x="42" y="28" width="36" height="10" fill="#fb923c"/><text x="60" y="36" fontSize="6" fontWeight="700" fill="white" textAnchor="middle" fontFamily="Arial">RACOR</text><rect x="52" y="58" width="16" height="14" fill="#ca8a04"/><ellipse cx="60" cy="80" rx="26" ry="2" fill="#e2e8f0"/></svg>),
-  Amortiguador: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="55" y="8" width="10" height="18" rx="2" fill="#94a3b8"/><rect x="52" y="24" width="16" height="30" fill="#64748b"/><rect x="48" y="52" width="24" height="24" rx="2" fill="#f59e0b"/><rect x="50" y="56" width="20" height="4" fill="#78350f"/><ellipse cx="60" cy="82" rx="20" ry="2" fill="#e2e8f0"/></svg>),
-  Mica: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="15" y="30" width="90" height="25" rx="3" fill="#fbbf24"/><rect x="18" y="33" width="84" height="19" rx="2" fill="#fcd34d"/><g fill="#f59e0b"><circle cx="30" cy="42" r="3"/><circle cx="45" cy="42" r="3"/><circle cx="60" cy="42" r="3"/><circle cx="75" cy="42" r="3"/><circle cx="90" cy="42" r="3"/></g><ellipse cx="60" cy="70" rx="40" ry="3" fill="#e2e8f0"/></svg>),
-  Manguera: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><path d="M15 40 Q 30 20, 55 45 T 105 45" stroke="#1e293b" strokeWidth="10" fill="none" strokeLinecap="round"/><circle cx="15" cy="40" r="7" fill="#94a3b8"/><circle cx="105" cy="45" r="7" fill="#94a3b8"/><ellipse cx="60" cy="70" rx="45" ry="3" fill="#e2e8f0"/></svg>),
-  Grasa: () => (<svg viewBox="0 0 120 90" width="100%" height="100%"><rect x="42" y="16" width="36" height="62" rx="3" fill="#1e40af"/><rect x="42" y="26" width="36" height="18" fill="#3b82f6"/><text x="60" y="38" fontSize="8" fontWeight="700" fill="white" textAnchor="middle" fontFamily="Arial">MOBIL</text><ellipse cx="60" cy="82" rx="26" ry="2" fill="#e2e8f0"/></svg>),
-};
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s ease; text-decoration: none; border: 1px solid transparent; white-space: nowrap; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #02111f; font-weight: 600; box-shadow: 0 0 0 1px rgba(34,211,238,0.3), 0 8px 24px -8px var(--accent-glow); }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-outline { background: rgba(255,255,255,0.02); color: var(--text); border-color: var(--line-strong); }
+  .btn-outline:hover { background: rgba(34,211,238,0.06); border-color: var(--accent); color: var(--accent); }
+  .btn-glow { background: rgba(10,18,36,0.6); color: var(--text); border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 20px -4px var(--accent-glow); }
+  .btn-ghost { background: transparent; color: var(--text-dim); }
+  .btn-ghost:hover { color: var(--text); }
 
-const PRODUCTS = [
-  { id: 1, cat: 'frenos', name: 'Balatas Delanteras Kenworth (T680-C)', price: 1890, stock: 12, img: 'Balatas' },
-  { id: 2, cat: 'filtros', name: 'Filtro de Aire Donaldson P181191', price: 985, stock: 23, img: 'Filtro' },
-  { id: 3, cat: 'lubricantes', name: 'Aceite Delo 400 15W-40 · Bidón 19L', price: 2450, stock: 8, img: 'Aceite' },
-  { id: 4, cat: 'frenos', name: 'Disco de Freno Freightliner 22.5"', price: 3250, stock: 4, img: 'Disco' },
-  { id: 5, cat: 'electrico', name: 'Batería LTH 31T · 1000 CCA', price: 4890, stock: 6, img: 'Bateria' },
-  { id: 6, cat: 'filtros', name: 'Filtro Combustible Racor R90P', price: 1240, stock: 15, img: 'FiltroComb' },
-  { id: 7, cat: 'suspension', name: 'Amortiguador Monroe Gas-Magnum', price: 2180, stock: 3, img: 'Amortiguador' },
-  { id: 8, cat: 'electrico', name: 'Mica LED Ámbar 24V Direccional', price: 420, stock: 38, img: 'Mica' },
-  { id: 9, cat: 'accesorios', name: 'Manguera Hidráulica 3/8" · 1 Metro', price: 680, stock: 21, img: 'Manguera' },
-  { id: 10, cat: 'lubricantes', name: 'Grasa Mobilgrease XHP · 1 KG', price: 540, stock: 17, img: 'Grasa' },
-];
+  .tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: rgba(34, 211, 238, 0.04); font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
 
-const CATEGORIES = [
-  { id: 'todo', label: 'Todo', icon: '🛒', color: '#6366f1' },
-  { id: 'frenos', label: 'Frenos', icon: '🛑', color: '#ef4444' },
-  { id: 'filtros', label: 'Filtros', icon: '🧰', color: '#ec4899' },
-  { id: 'lubricantes', label: 'Lubricantes', icon: '🛢', color: '#3b82f6' },
-  { id: 'electrico', label: 'Eléctrico', icon: '🔋', color: '#22c55e' },
-  { id: 'suspension', label: 'Suspensión', icon: '🔧', color: '#a855f7' },
-  { id: 'accesorios', label: 'Accesorios', icon: '✨', color: '#f59e0b' },
-];
+  .nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(5,7,13,0.7); border-bottom: 1px solid var(--line); }
+  .nav-link { color: var(--text-dim); font-size: 14px; font-weight: 500; padding: 8px 14px; border-radius: 8px; text-decoration: none; transition: all 0.15s ease; }
+  .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .nav-link.active { color: var(--accent); }
 
-// ---------- Navbar ----------
-function Navbar() {
-  return (
-    <nav className="nav">
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
-        <a href="index.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'var(--text)' }}>
-          <div className="logo-mark" />
-          <span style={{ fontWeight: 700, fontSize: 17, letterSpacing: '-0.01em' }}>AXIONIX</span>
-          <span className="mono" style={{ fontSize: 10, color: 'var(--accent)', border: '1px solid rgba(34,211,238,0.3)', padding: '2px 6px', borderRadius: 4, marginLeft: 4, background: 'rgba(34,211,238,0.06)' }}>POS</span>
-        </a>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }} className="hide-mobile">
-          <a href="index.html" className="nav-link">Plataforma</a>
-          <a href="#" className="nav-link active">POS</a>
-          <a href="Proyectos.html" className="nav-link">Proyectos</a>
-          <a href="#contacto" className="nav-link">Contacto</a>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <a href="https://wa.me/526182562935" target="_blank" rel="noopener" className="btn btn-ghost" style={{ color: '#25D366', padding: '8px 12px', fontSize: 13 }}>
-            <I.Whatsapp size={15} />
-            <span className="mono hide-mobile">+52 618 256 2935</span>
-          </a>
-          <a href="#" className="btn btn-glow" style={{ padding: '9px 18px', fontSize: 13 }}>
-            <I.Lock size={13} /> Iniciar Sesión
-          </a>
-        </div>
-      </div>
-      <style>{`@media (max-width: 780px) { .hide-mobile { display: none !important; } }`}</style>
-    </nav>
-  );
-}
+  .logo-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); position: relative; box-shadow: 0 0 16px -2px var(--accent-glow); }
+  .logo-mark::after { content: ""; position: absolute; inset: 6px; background: var(--bg); border-radius: 3px; clip-path: polygon(0 100%, 50% 0, 100% 100%, 65% 100%, 50% 60%, 35% 100%); }
 
-// ---------- Hero ----------
-function Hero() {
-  return (
-    <section style={{ paddingTop: 64, paddingBottom: 48 }}>
-      <div className="container fade-up" style={{ textAlign: 'center', maxWidth: 820, margin: '0 auto' }}>
-        <div className="tag" style={{ marginBottom: 24, display: 'inline-flex' }}>
-          <span className="pulse-dot" />
-          <span>AXIONIX POINT · POS · EN VIVO</span>
-        </div>
-        <h1 style={{ marginBottom: 22 }}>
-          <span style={{ color: 'var(--text)' }}>Axionix POINT — POS.</span><br/>
-          <span className="gradient-text">Velocidad y control en el mostrador.</span>
-        </h1>
-        <p style={{ fontSize: 18, maxWidth: 680, margin: '0 auto 32px' }}>
-          El sistema de Punto de Venta ágil, diseñado para refaccionarias, retail y negocios de alto flujo. Búsqueda instantánea, control de inventario en tiempo real y gestión multi-sucursal.
-        </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="#mockup" className="btn btn-primary" style={{ padding: '14px 22px', fontSize: 15 }}>
-            Ver Demo Interactiva <I.Arrow size={15} />
-          </a>
-          <a href="#contacto" className="btn btn-outline" style={{ padding: '14px 22px', fontSize: 15 }}>
-            Hablar con Ventas
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
+  h1, h2, h3, h4 { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; margin: 0; }
+  h1 { font-size: clamp(40px, 5.5vw, 64px); font-weight: 700; line-height: 1.04; letter-spacing: -0.035em; }
+  h2 { font-size: clamp(28px, 3.5vw, 42px); font-weight: 600; line-height: 1.1; letter-spacing: -0.03em; }
+  h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
+  p { margin: 0; line-height: 1.55; color: var(--text-dim); }
 
-// ---------- Mockup ----------
-function PosMockup() {
-  const [cat, setCat] = useState('todo');
-  const [cart, setCart] = useState([]);
-  const [justAdded, setJustAdded] = useState(null);
-  const [query, setQuery] = useState('');
+  .gradient-text { background: linear-gradient(135deg, var(--accent) 0%, #fff 50%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
-  const addToCart = (prod) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === prod.id);
-      if (existing) return prev.map(i => i.id === prod.id ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { ...prod, qty: 1 }];
-    });
-    setJustAdded(prod.id);
-    setTimeout(() => setJustAdded(null), 900);
-  };
+  @keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,211,238,0.6); } 50% { box-shadow: 0 0 0 6px rgba(34,211,238,0); } }
+  .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s infinite; }
 
-  const updateQty = (id, delta) => {
-    setCart(prev => {
-      return prev.map(i => i.id === id ? { ...i, qty: Math.max(0, i.qty + delta) } : i).filter(i => i.qty > 0);
-    });
-  };
+  @keyframes fadeUp { from { transform: translateY(16px); } to { transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-  const visible = PRODUCTS.filter(p => {
-    if (cat !== 'todo' && p.cat !== cat) return false;
-    if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
-    return true;
-  });
+  /* Browser window mockup */
+  .mockup-frame {
+    position: relative;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(34,211,238,0.35), rgba(59,130,246,0.35), rgba(34,211,238,0.1));
+    padding: 1px;
+    box-shadow: 0 0 100px -20px rgba(34, 211, 238, 0.3), 0 40px 80px -20px rgba(0,0,0,0.6);
+  }
+  .mockup-frame::before {
+    content: ""; position: absolute; inset: -30px;
+    background: radial-gradient(ellipse at center, rgba(34,211,238,0.12), transparent 70%);
+    filter: blur(30px); z-index: -1; pointer-events: none;
+  }
+  .mockup-inner { background: var(--pos-bg); border-radius: 17px; overflow: hidden; }
+  .mockup-chrome {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: #0a0e1a;
+    border-bottom: 1px solid rgba(148,184,255,0.08);
+  }
+  .mockup-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .mockup-urlbar {
+    flex: 1; margin: 0 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-faint);
+    display: flex; align-items: center; gap: 8px;
+  }
 
-  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const iva = Math.round(subtotal * 0.16);
-  const total = subtotal + iva;
+  /* POS interior (light) */
+  .pos { color: var(--pos-text); font-family: 'Inter', sans-serif; }
+  .pos-topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 20px;
+    background: #0f172a;
+    color: white;
+  }
+  .pos-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+  .pos-brand small { font-size: 9px; letter-spacing: 0.15em; color: var(--accent); font-weight: 500; display: block; margin-top: 2px; }
+  .pos-search {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 9px 14px;
+    color: white; font-size: 13px;
+  }
+  .pos-search input { flex: 1; background: transparent; border: none; outline: none; color: white; font: inherit; }
+  .pos-search input::placeholder { color: rgba(255,255,255,0.4); }
+  .pos-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(22,163,74,0.15); border: 1px solid rgba(22,163,74,0.35); color: #4ade80; font-size: 12px; font-weight: 500; }
+  .pos-user { display: flex; align-items: center; gap: 10px; }
+  .pos-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; color: #02111f; font-weight: 700; font-size: 12px; }
 
-  return (
-    <section id="mockup" style={{ padding: '40px 0 80px' }}>
-      <div className="container">
-        <div className="mockup-frame corner-marks">
-          <div className="mockup-inner">
-            {/* Browser chrome */}
-            <div className="mockup-chrome">
-              <div className="mockup-dot" style={{ background: '#ef4444' }} />
-              <div className="mockup-dot" style={{ background: '#f59e0b' }} />
-              <div className="mockup-dot" style={{ background: '#22c55e' }} />
-              <div className="mockup-urlbar">
-                <I.Lock size={11} />
-                <span>pos.axionixmx.com/terminal/durango-centro</span>
-              </div>
-              <span className="mono" style={{ fontSize: 10, color: 'var(--accent)', padding: '3px 8px', background: 'rgba(34,211,238,0.08)', borderRadius: 4, border: '1px solid rgba(34,211,238,0.2)' }}>● LIVE DEMO</span>
-            </div>
+  .pos-cats { display: flex; gap: 10px; padding: 16px 20px 12px; overflow-x: auto; background: var(--pos-bg); }
+  .pos-cat {
+    flex-shrink: 0;
+    padding: 10px 16px; border-radius: 10px;
+    background: var(--pos-card);
+    border: 1px solid var(--pos-line);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500; color: var(--pos-text);
+    cursor: pointer; transition: all 0.15s ease;
+    min-width: 88px;
+    flex-direction: column; padding: 10px 14px;
+  }
+  .pos-cat-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .pos-cat.active { border-color: var(--pos-accent); background: #eef2ff; box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+  .pos-cat:hover:not(.active) { border-color: #94a3b8; }
 
-            {/* POS UI */}
-            <div className="pos">
-              {/* Top bar */}
-              <div className="pos-topbar">
-                <div className="pos-brand">
-                  <div className="logo-mark" style={{ width: 28, height: 28 }} />
-                  <div>
-                    <div>Axionix</div>
-                    <small>POINT · POS</small>
-                  </div>
-                </div>
-                <div className="pos-search">
-                  <I.Search size={14} />
-                  <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar por nombre de pieza (ej. balata, filtro, aceite)..." />
-                  <span className="mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.15)', padding: '2px 6px', borderRadius: 4 }}>⌘K</span>
-                </div>
-                <span className="pos-status">
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} /> En línea
-                </span>
-                <div className="pos-user">
-                  <div className="pos-avatar">MG</div>
-                  <div style={{ lineHeight: 1.2 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600 }}>Durango Centro</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Cajera · María G.</div>
-                  </div>
-                </div>
-              </div>
+  .pos-body { display: grid; grid-template-columns: 1fr 280px; gap: 16px; padding: 0 20px 20px; background: var(--pos-bg); }
+  @media (max-width: 860px) { .pos-body { grid-template-columns: 1fr; } }
 
-              {/* Categories */}
-              <div className="pos-cats">
-                {CATEGORIES.map(c => (
-                  <div key={c.id} className={`pos-cat ${cat === c.id ? 'active' : ''}`} onClick={() => setCat(c.id)}>
-                    <div className="pos-cat-icon" style={{ background: `${c.color}1a`, color: c.color }}>{c.icon}</div>
-                    <span>{c.label}</span>
-                  </div>
-                ))}
-              </div>
+  .pos-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  @media (max-width: 1080px) { .pos-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .pos-grid { grid-template-columns: repeat(2, 1fr); } }
 
-              {/* Grid + cart */}
-              <div className="pos-body">
-                <div className="pos-grid">
-                  {visible.map(p => {
-                    const Img = P[p.img];
-                    return (
-                      <div key={p.id} className="pos-card" onClick={() => addToCart(p)}>
-                        <div className="pos-card-img"><Img /></div>
-                        <div className="pos-card-body">
-                          <div className="pos-card-name">{p.name}</div>
-                          <div className="pos-card-price">
-                            <b>${p.price.toLocaleString('es-MX', { minimumFractionDigits: 0 })}</b>
-                            <span>MXN</span>
-                          </div>
-                          <span className={`pos-stock ${p.stock < 6 ? 'low' : ''}`}>
-                            <span className="pos-stock-dot" />
-                            {p.stock} en Inventario
-                          </span>
-                          <button className={`pos-add ${justAdded === p.id ? 'added' : ''}`} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>
-                            <I.Plus size={11} />
-                            {justAdded === p.id ? 'AGREGADO' : 'AGREGAR AL CARRITO'}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {visible.length === 0 && (
-                    <div style={{ gridColumn: '1 / -1', padding: 40, textAlign: 'center', color: 'var(--pos-text-dim)', fontSize: 13 }}>
-                      Sin resultados para "{query}"
-                    </div>
-                  )}
-                </div>
+  .pos-card {
+    background: var(--pos-card);
+    border-radius: 10px;
+    border: 1px solid var(--pos-line);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+  }
+  .pos-card:hover { transform: translateY(-4px); box-shadow: 0 14px 28px -14px rgba(15,23,42,0.25); border-color: #cbd5e1; }
+  .pos-card-img { aspect-ratio: 4/3; background: #f1f5f9; display: flex; align-items: center; justify-content: center; position: relative; }
+  .pos-card-body { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .pos-card-name { font-size: 11.5px; font-weight: 700; color: var(--pos-text); line-height: 1.25; letter-spacing: 0; text-transform: uppercase; min-height: 28px; }
+  .pos-card-price { display: flex; align-items: baseline; gap: 4px; }
+  .pos-card-price b { font-size: 15px; font-weight: 700; color: var(--pos-text); }
+  .pos-card-price span { font-size: 10px; color: var(--pos-text-dim); font-family: 'JetBrains Mono', monospace; }
+  .pos-stock { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--pos-green); font-weight: 500; }
+  .pos-stock-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pos-green); }
+  .pos-stock.low { color: #d97706; }
+  .pos-stock.low .pos-stock-dot { background: #d97706; }
+  .pos-add {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 8px 10px;
+    background: var(--pos-green);
+    color: white; font-size: 10.5px; font-weight: 700;
+    border: none; border-radius: 6px; cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+  .pos-add:hover { background: #15803d; }
+  .pos-add.added { background: var(--pos-accent); }
 
-                {/* Cart */}
-                <div className="pos-cart">
-                  <h4>MI PEDIDO {cart.length > 0 && <span style={{ color: 'var(--pos-accent)' }}>· {cart.length}</span>}</h4>
-                  {cart.length === 0 ? (
-                    <div className="pos-cart-empty">
-                      <I.Cart size={48} />
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--pos-text)', marginBottom: 4 }}>Tu pedido está vacío</div>
-                        <div style={{ fontSize: 11 }}>Toca "+ AGREGAR" en cualquier pieza para comenzar.</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="pos-cart-list">
-                        {cart.map(item => (
-                          <div key={item.id} className="pos-cart-item">
-                            <div className="pos-cart-item-info">
-                              <div className="pos-cart-item-name">{item.name}</div>
-                              <div className="pos-cart-item-meta">${item.price.toLocaleString()} × {item.qty}</div>
-                            </div>
-                            <div className="pos-qty">
-                              <button onClick={() => updateQty(item.id, -1)}>−</button>
-                              <span>{item.qty}</span>
-                              <button onClick={() => updateQty(item.id, 1)}>+</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="pos-cart-total">
-                        <div className="pos-cart-row"><span>Subtotal</span><span>${subtotal.toLocaleString()}</span></div>
-                        <div className="pos-cart-row"><span>IVA 16%</span><span>${iva.toLocaleString()}</span></div>
-                        <div className="pos-cart-row big"><span>Total</span><span>${total.toLocaleString()} MXN</span></div>
-                        <button className="pos-cart-cobrar">Cobrar · F9</button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  .pos-cart {
+    background: var(--pos-card);
+    border-radius: 12px;
+    border: 1px solid var(--pos-line);
+    padding: 16px;
+    display: flex; flex-direction: column;
+    min-height: 480px;
+  }
+  .pos-cart h4 { font-size: 11px; color: var(--pos-text-dim); letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; font-weight: 500; margin-bottom: 12px; }
+  .pos-cart-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; padding: 20px; color: var(--pos-text-dim); }
+  .pos-cart-list { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+  .pos-cart-item { display: flex; gap: 8px; padding: 8px; border-radius: 8px; background: #f8fafc; border: 1px solid var(--pos-line); }
+  .pos-cart-item-info { flex: 1; min-width: 0; }
+  .pos-cart-item-name { font-size: 11px; font-weight: 600; color: var(--pos-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pos-cart-item-meta { font-size: 10px; color: var(--pos-text-dim); font-family: 'JetBrains Mono', monospace; }
+  .pos-qty { display: flex; align-items: center; gap: 4px; }
+  .pos-qty button { width: 20px; height: 20px; border-radius: 4px; background: white; border: 1px solid var(--pos-line); cursor: pointer; font-size: 12px; line-height: 1; color: var(--pos-text); }
+  .pos-qty span { min-width: 16px; text-align: center; font-size: 11px; font-weight: 600; }
+  .pos-cart-total { border-top: 1px solid var(--pos-line); margin-top: 12px; padding-top: 12px; }
+  .pos-cart-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--pos-text-dim); margin-bottom: 4px; }
+  .pos-cart-row.big { font-size: 16px; color: var(--pos-text); font-weight: 700; margin-top: 8px; }
+  .pos-cart-cobrar { margin-top: 12px; padding: 12px; background: var(--pos-accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+  .pos-cart-cobrar:hover { background: #4f46e5; }
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 4px 0', flexWrap: 'wrap', gap: 12 }}>
-          <span className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>
-            <span style={{ color: 'var(--accent)' }}>▸</span> Demo real · prueba a buscar, filtrar por categoría y agregar productos al pedido.
-          </span>
-          <span className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>
-            build.axionix-pos · v4.8.2
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-}
+  /* Feature card */
+  .feat-card { background: linear-gradient(180deg, rgba(13,20,38,0.8), rgba(10,15,28,0.6)); border: 1px solid var(--line); border-radius: 16px; padding: 28px; transition: all 0.25s ease; position: relative; overflow: hidden; }
+  .feat-card:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+  .feat-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25); display: flex; align-items: center; justify-content: center; color: var(--accent); margin-bottom: 20px; }
 
-// ---------- Features ----------
-function Features() {
-  const feats = [
-    {
-      icon: <I.Bolt size={20} />,
-      title: 'Agilidad de Cobro',
-      body: 'Interfaz optimizada para pantallas táctiles y atajos de teclado. Cierra una venta en menos de 12 segundos, con cajón y báscula listos.',
-      bullets: ['Touch + teclado', 'Impresora térmica', 'Factura 4.0 en 1 clic'],
-      color: 'var(--accent)',
-    },
-    {
-      icon: <I.Box size={20} />,
-      title: 'Inventario Sincronizado',
-      body: 'Alertas de stock bajo y control multi-almacén. Todos tus puntos de venta actualizados en tiempo real, incluso sin internet estable.',
-      bullets: ['Multi-sucursal', 'Offline-first', 'Alertas inteligentes'],
-      color: '#3B82F6',
-    },
-    {
-      icon: <I.Chart size={20} />,
-      title: 'Reportes Inteligentes',
-      body: 'Conoce tus productos más vendidos al instante. Cortes de caja, rotación y márgenes en dashboards exportables a Excel y PDF.',
-      bullets: ['Cortes en vivo', 'Top productos', 'Exportación'],
-      color: '#A78BFA',
-    },
-  ];
+  /* Whatsapp btn */
+  .wa-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; background: linear-gradient(135deg, #25D366, #128C7E); color: white; font-weight: 600; font-size: 15px; border-radius: 12px; text-decoration: none; box-shadow: 0 10px 30px -10px rgba(37, 211, 102, 0.6); transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.1); }
+  .wa-btn:hover { transform: translateY(-1px); }
 
-  return (
-    <section id="features" style={{ padding: '40px 0 80px' }}>
-      <div className="container">
-        <div style={{ maxWidth: 720, marginBottom: 40 }}>
-          <div className="tag" style={{ marginBottom: 14 }}>
-            <span style={{ width: 6, height: 6, borderRadius: 2, background: 'var(--accent)' }} />
-            POR QUÉ AXIONIX POS
-          </div>
-          <h2>Construido para el ritmo del mostrador.</h2>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="feat-grid">
-          {feats.map((f, i) => (
-            <div key={i} className="feat-card">
-              <div className="feat-icon" style={{ background: `${f.color}14`, borderColor: `${f.color}40`, color: f.color }}>{f.icon}</div>
-              <h3 style={{ fontSize: 19, marginBottom: 10 }}>{f.title}</h3>
-              <p style={{ fontSize: 14, marginBottom: 20 }}>{f.body}</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 16, borderTop: '1px dashed var(--line)' }}>
-                {f.bullets.map(b => (
-                  <div key={b} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text-dim)' }}>
-                    <span style={{ width: 14, height: 14, borderRadius: '50%', background: `${f.color}20`, color: f.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700 }}>✓</span>
-                    {b}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <style>{`@media (max-width: 860px) { .feat-grid { grid-template-columns: 1fr !important; } }`}</style>
-      </div>
-    </section>
-  );
-}
+  .corner-marks { position: relative; }
+  .corner-marks::before, .corner-marks::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--accent); opacity: 0.5; z-index: 2; }
+  .corner-marks::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .corner-marks::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-// ---------- CTA / Footer ----------
-function ContactCTA() {
-  return (
-    <section id="contacto" style={{ padding: '40px 0 80px' }}>
-      <div className="container">
-        <div style={{ position: 'relative', borderRadius: 24, border: '1px solid var(--line-strong)', background: 'linear-gradient(135deg, rgba(34,211,238,0.06), rgba(59,130,246,0.04), rgba(13,20,38,0.8))', padding: '64px 56px', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, background: 'radial-gradient(circle, rgba(34,211,238,0.15), transparent 60%)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: -100, left: -50, width: 300, height: 300, background: 'radial-gradient(circle, rgba(59,130,246,0.12), transparent 60%)', pointerEvents: 'none' }} />
-          <div style={{ position: 'relative', textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
-            <div className="tag" style={{ marginBottom: 18, display: 'inline-flex' }}>
-              <span className="pulse-dot" />
-              IMPLEMENTACIÓN EN 48 HRS
-            </div>
-            <h2 style={{ marginBottom: 18 }}>
-              ¿Listo para modernizar tu mostrador?<br/>
-              <span className="gradient-text">Implementa Axionix POS hoy.</span>
-            </h2>
-            <p style={{ fontSize: 17, maxWidth: 560, margin: '0 auto 32px' }}>
-              Te ayudamos con migración de inventario, capacitación y hardware compatible. Cero tiempo muerto en tu operación.
-            </p>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <a className="wa-btn" href="https://wa.me/526182562935?text=Hola%20Axionix%2C%20quiero%20implementar%20POS" target="_blank" rel="noopener">
-                <I.Whatsapp size={20} />
-                WhatsApp · +52 618 256 2935
-              </a>
-              <a className="btn btn-outline" href="mailto:contact@axionixmx.com" style={{ padding: '14px 20px', fontSize: 15 }}>
-                <I.Mail size={15} /> contact@axionixmx.com
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <footer style={{ marginTop: 60, paddingTop: 32, borderTop: '1px solid var(--line)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div className="logo-mark" style={{ width: 24, height: 24 }} />
-            <span style={{ fontWeight: 600, fontSize: 14 }}>AXIONIX</span>
-            <span className="mono" style={{ fontSize: 11, color: 'var(--text-faint)' }}>© 2026 · Durango, MX</span>
-          </div>
-          <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'var(--text-dim)' }}>
-            <a href="index.html" style={{ color: 'inherit', textDecoration: 'none' }}>Plataforma</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>POS</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Docs</a>
-            <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Estado</a>
-          </div>
-        </footer>
-      </div>
-    </section>
-  );
-}
-
-function App() {
-  return (
-    <>
-      <Navbar />
-      <Hero />
-      <PosMockup />
-      <Features />
-      <ContactCTA />
-    </>
-  );
-}
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+  @keyframes flyToCart {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: translate(150px, -50px) scale(0.2); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="pos.jsx"></script>
+</body>
+</html>
